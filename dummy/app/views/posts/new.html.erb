@@ -1,5 +1,12 @@
-<%= form_for @post, multipart: true do |form| %>
+<%= form_for @post do |form| %>
   <label for="post_image">Image</label>
-  <bard-file id="post_image" name="post[image]"></bard-file>
+  <bard-file id="post_image" name="post[image]" directupload="<%= rails_direct_uploads_url %>"></bard-file>
   <input type="submit" value="Submit">
+
+  <div class="direct-upload-wrapper">
+    <div class="direct-upload-content">
+      <h3>Uploading your media</h3>
+      <div id="progress-container"></div>
+    </div>
+  </div>
 <% end %>

@@ -3,6 +3,7 @@ import { render } from "lit-html"
 import styles from "./css.js"
 import getMimeType from "./get_mime_type"
 import isConstructor from "./is_constructor"
+import FormController from "./form-controller"
 
 export class BardFile extends LitElement {
   static styles = styles
@@ -18,6 +19,10 @@ export class BardFile extends LitElement {
 
     files: { state: true },
     highlighted: { state: true },
+
+    state: { state: true },
+    title: { state: true },
+    percent: { state: true },
   }
 
   constructor() {
@@ -28,8 +33,17 @@ export class BardFile extends LitElement {
 
     this.originalId = this.id
     this.removeAttribute("id")
+  }
 
-    /*
+  init(event) {
+    const { id, file } = event.detail
+    this.state = "pending"
+    this.previewfilename = file.name
+    this.percent = 0
+    this.formController.init(event)
+  }
+
+  /*
     if options[:require_type].present?
       if options[:require_type] == "image"
         regex = "^image/"
@@ -48,48 +62,32 @@ export class BardFile extends LitElement {
         validate_mime_type_message_value: message,
       })
     end
+  */
 
-    preview_data_options = {}
-    if options[:require_some]
-      file_field_data_options.merge!(require_some_target: "field")
-      preview_data_options.merge!(require_some_target: "preview")
-    end
-    */
+  connectedCallback() {
+    super.connectedCallback()
+    this.formController = FormController.forForm(this.closest("form"))
   }
 
   openFilePicker() {
     this.fileTarget.click()
   }
 
-  firstUpdated() {
-    render(html`
-      <input
-        id="${this.originalId}"
-        name="${this.name}"
-        type="file"
-        multiple="${this.multiple}"
-        required="${this.required}"
-      >
-      <input
-        DISABLED-name="${this.name}"
-        type="text"
-      >
-    `, this)
-
-    this.fileTarget = this.firstElementChild
-    this.fileTarget.addEventListener("change", event => this.fileTargetChanged(event))
-
-    this.textInput = this.lastElementChild
-  }
-
   fileTargetChanged(event) {
-    Promise.all(Array.from(this.fileTarget.files).map(file => {
-      return getMimeType(file).then(mimetype => {
-        file.mimetype = mimetype
-        file.src = URL.createObjectURL(file)
-        return file
-      })
-    })).then(files => this.files = files)
+    // if(this.inputTarget.signedId) {
+    //   get(`/previews/${this.inputTarget.signedId}`).then(r=>r.json).then(blob => {
+    //     this.renderPreview({ mimetype: "unavailable", name: blob.filename })
+    //   })
+    // } else {
+      this.formController.inputChanged(event, this.textInput)
+      Promise.all(Array.from(this.fileTarget.files).map(file => {
+        return getMimeType(file).then(mimetype => {
+          file.mimetype = mimetype
+          file.src = URL.createObjectURL(file)
+          return file
+        })
+      })).then(files => this.files = files)
+    // }
   }
 
   drop(event) {
@@ -125,9 +123,60 @@ export class BardFile extends LitElement {
     event.stopPropagation()
   }
 
-  render() {
+  start(event) {
+    this.state = "uploading"
+    this.formController.start(event)
+  }
+
+  progress(event) {
+    const { id, progress } = event.detail
+    this.percent = progress
+    this.formController.progress(event)
+  }
+
+  error(event) {
+    event.preventDefault()
+    const { id, error } = event.detail
+    this.state = "error"
+    this.error = error
+    this.formController.error(event)
+  }
+
+  end(event) {
+    this.state = "complete"
+    this.formController.end(event)
+  }
+
+  firstUpdated() { // Light DOM
+    render(html`
+      <input
+        id="${this.originalId}"
+        type="file"
+        multiple="${this.multiple}"
+        required="${this.required}"
+        data-direct-upload-url="${this.directupload}"
+
+        @direct-upload:initialize="${this.init}"
+        @direct-upload:start="${this.start}"
+        @direct-upload:progress="${this.progress}"
+        @direct-upload:error="${this.error}"
+        @direct-upload:end="${this.end}"
+
+        @change="${this.fileTargetChanged}"
+      >
+      <input
+        name="${this.name}"
+        type="text"
+      >
+    `, this, { host: this })
+
+    this.fileTarget = this.firstElementChild
+    this.textInput = this.lastElementChild
+  }
+
+  render() { // Shadow DOM
     return html`
-      <label class="drag-media ${this.class} ${this.highlighted ? "-dragover" : ''}" data-controller="direct-upload-progress"
+      <label class="drag-media ${this.class} ${this.highlighted ? "-dragover" : ''}"
         @click="${this.openFilePicker}"
 
         @drag="${this.halt}"
