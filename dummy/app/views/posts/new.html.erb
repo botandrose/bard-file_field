@@ -1,0 +1,5 @@
+<%= form_for @post, multipart: true do |form| %>
+  <label for="post_image">Image</label>
+  <bard-file id="post_image" name="post[image]"></bard-file>
+  <input type="submit" value="Submit">
+<% end %>
