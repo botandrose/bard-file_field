@@ -1,16 +1,11 @@
 import { html, css, LitElement } from 'lit'
 import { render } from "lit-html"
+import styles from "./css.js"
 import getMimeType from "./get_mime_type"
 import isConstructor from "./is_constructor"
 
 export class BardFile extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-      padding: 25px;
-      color: var(--bard-file-text-color, #000);
-    }
-  `
+  static styles = styles
 
   static properties = {
     name: { type: String },
