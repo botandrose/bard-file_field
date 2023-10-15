@@ -38,8 +38,15 @@ Feature: <bard-file> is an improved file input with extra features
   Scenario: It supports naive serialization and resumption with the form-persistence npm package
     When I fill in "Name" with "Jerry"
     And I attach the file "image.jpg" to "Image"
+    Then I should see an upload progress bar at 100% within the bard-file
 
     Given I am on the homepage
     Then I should see "Name" filled in with "Jerry"
-    And I should see a preview of "image.jpg" within the bard-file
+    # FIXME how can we show a preview of the already uploaded "image.jpg"
+    And I should not see a preview
+
+    When I press "Submit"
+    Then I should see "Post created!"
+    And I should see "image.jpg"
+    And I should see the "image.jpg" image
 

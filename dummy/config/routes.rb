@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
-  resources :posts
   root to: "posts#new"
+  resources :posts
+
+  get "/previews/:signed_id" => "previews#show"
 end

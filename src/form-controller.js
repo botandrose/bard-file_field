@@ -8,7 +8,9 @@ class MyDirectUploadController extends DirectUploadController {
         this.textInput.value = ''
         this.dispatchError(error)
       } else {
-        this.textInput.value = attributes.signed_id
+        // don't use .value= setter because its modified to trigger change event
+        // this.textInput.value = attributes.signed_id
+        this.textInput.setAttribute("value", attributes.signed_id)
       }
       this.dispatch("end")
       callback(error)

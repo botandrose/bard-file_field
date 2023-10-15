@@ -9,7 +9,11 @@ module WithinHelpers
     case locator
 
     when /the bard-file/
-      find("bard-file").shadow_root
+      root = find("bard-file").shadow_root
+      page.document.synchronize errors: [Ferrum::JavaScriptError] do
+        root.has_css?("*")
+      end
+      root
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:

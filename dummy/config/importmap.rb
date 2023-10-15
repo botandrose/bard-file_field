@@ -36,3 +36,6 @@ pin "util-deprecate", to: "https://ga.jspm.io/npm:util-deprecate@1.0.2/browser.j
 
 pin "form-persistence", to: "https://cdn.jsdelivr.net/npm/form-persistence@2.0.6/form-persistence.js/+esm"
 
+pin "rails-request-json", to: "https://ga.jspm.io/npm:rails-request-json@0.0.1/index.js"
+pin "@rails/request.js", to: "https://ga.jspm.io/npm:@rails/request.js@0.0.8/src/index.js"
+

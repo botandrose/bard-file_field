@@ -5,6 +5,7 @@ import getMimeType from "./get_mime_type"
 import formatBytes from "./format_bytes"
 import isConstructor from "./is_constructor"
 import FormController from "./form-controller"
+import { get } from "rails-request-json"
 
 export class BardFile extends LitElement {
   static styles = styles
@@ -48,12 +49,16 @@ export class BardFile extends LitElement {
     this.fileTarget.click()
   }
 
+  textTargetChanged(event) {
+    const signedId = event.target.value
+    if(signedId.length > 0) {
+      get(`/previews/${signedId}`).then(blob => {
+        this.files = [{ mimetype: "unavailable", name: blob.filename }]
+      })
+    }
+  }
+
   fileTargetChanged(event) {
-    // if(this.inputTarget.signedId) {
-    //   get(`/previews/${this.inputTarget.signedId}`).then(r=>r.json).then(blob => {
-    //     this.renderPreview({ mimetype: "unavailable", name: blob.filename })
-    //   })
-    // } else {
       Promise.all(Array.from(this.fileTarget.files).map(file => {
         return getMimeType(file).then(mimetype => {
           file.mimetype = mimetype
@@ -171,7 +176,6 @@ export class BardFile extends LitElement {
         id="${this.originalId}"
         type="file"
         multiple="${this.multiple}"
-        required="${this.required}"
         data-direct-upload-url="${this.directupload}"
 
         @direct-upload:initialize="${this.init}"
@@ -183,13 +187,36 @@ export class BardFile extends LitElement {
         @change="${this.fileTargetChanged}"
       >
       <input
+        required="${this.required}"
         name="${this.name}"
         type="text"
+        @change="${this.textTargetChanged}"
       >
     `, this, { host: this })
 
     this.fileTarget = this.firstElementChild
     this.textTarget = this.lastElementChild
+
+
+    // override textTarget.value= setter to fire change event to catch mutation via form-persistence NPM package
+    var descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")
+    var inputSetter = descriptor.set
+
+    //Then modify the "setter" of the value to notify when the value is changed:
+    descriptor.set = function(val) {
+      // changing to native setter to prevent the loop while setting the value
+      Object.defineProperty(this, "value", { set: inputSetter })
+      this.value = val
+
+      // Custom code triggered when $input.value is set
+      this.dispatchEvent(new Event("change"))
+
+      //changing back to custom setter
+      Object.defineProperty(this, "value", descriptor)
+    }
+
+    //Last add the new "value" descriptor to the input element
+    Object.defineProperty(this.textTarget, "value", descriptor);
   }
 
   render() { // Shadow DOM
