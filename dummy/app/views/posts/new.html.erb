@@ -1,6 +1,11 @@
 <%= form_for @post do |form| %>
   <label for="post_image">Image</label>
-  <bard-file id="post_image" name="post[image]" directupload="<%= rails_direct_uploads_url %>"></bard-file>
+  <bard-file
+    id="post_image"
+    name="post[image]"
+    directupload="<%= rails_direct_uploads_url %>"
+    accepts="image"
+  ></bard-file>
   <input type="submit" value="Submit">
 
   <div class="direct-upload-wrapper">

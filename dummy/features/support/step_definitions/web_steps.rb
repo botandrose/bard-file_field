@@ -19,23 +19,25 @@ Then /^I should see "(.*?)"$/ do |text|
   expect(page).to have_content(text)
 end
 
+Then /^I should not see "(.*?)"$/ do |text|
+  expect(page).to_not have_content(text)
+end
+
 Then "I should see the {string} image" do |filename|
   expect(page).to have_css("img[src$='/#{filename}']")
 end
 
-Then "I should see a preview of {string} within the bard-file" do |filename|
-  within shadow_root do
-    expect(page).to have_content(filename)
-    expect(page).to have_css("img")
-  end
+Then "I should see a preview of {string}" do |filename|
+  figure = find("figure")
+  expect(figure).to have_content(filename)
+  expect(figure).to have_css("img")
 end
 
-Then "I should see an upload progress bar at 100% within the bard-file" do
-  within shadow_root do
-    expect(page).to have_css(".direct-upload--complete")
-  end
+Then "I should not see a preview" do
+  expect(page).to_not have_css("figure")
 end
 
-def shadow_root
-  find("bard-file").shadow_root
+Then "I should see an upload progress bar at 100%" do
+  expect(page).to have_css(".direct-upload--complete")
 end
+

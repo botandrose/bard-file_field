@@ -14,7 +14,7 @@ export class BardFile extends LitElement {
     required: { type: Boolean },
     previewfilename: { type: String },
     previewsrc: { type: String },
-    accept: { type: String },
+    accepts: { type: String },
     directupload: { type: String },
 
     files: { state: true },
@@ -35,27 +35,6 @@ export class BardFile extends LitElement {
     this.removeAttribute("id")
   }
 
-  /*
-    if options[:require_type].present?
-      if options[:require_type] == "image"
-        regex = "^image/"
-        message = options[:multiple] ? "must all be images" : "must be an image"
-      elsif options[:require_type] == "pdf"
-        regex = "^application/pdf$"
-        message = options[:multiple] ? "must all be PDFs" : "must be a PDF"
-      else
-        regex = "^(image|video)/"
-        message = options[:multiple] ? "files must be images and/or videos" : "must be an image or a video"
-      end
-
-      file_field_data_options.merge!({
-        controller: "validate-mime-type",
-        validate_mime_type_regex_value: regex,
-        validate_mime_type_message_value: message,
-      })
-    end
-  */
-
   connectedCallback() {
     super.connectedCallback()
     this.formController = FormController.forForm(this.closest("form"))
@@ -71,15 +50,43 @@ export class BardFile extends LitElement {
     //     this.renderPreview({ mimetype: "unavailable", name: blob.filename })
     //   })
     // } else {
-      this.formController.inputChanged(event, this.textInput)
       Promise.all(Array.from(this.fileTarget.files).map(file => {
         return getMimeType(file).then(mimetype => {
           file.mimetype = mimetype
           file.src = URL.createObjectURL(file)
           return file
         })
-      })).then(files => this.files = files)
+      })).then(files => {
+        if(this.allValid(files)) {
+          this.files = files
+          this.formController.inputChanged(event, this.textTarget)
+        } else {
+          this.title = this.buildErrorMessage()
+          this.textTarget.value = ""
+          this.fileTarget.value = ""
+          this.fileTarget.dispatchEvent(new Event("change"))
+        }
+      })
     // }
+  }
+
+  allValid(files) {
+    return files.every(file => new RegExp(this.acceptsRegex).test(file.mimetype))
+  }
+
+  get acceptsRegex() {
+    switch(this.accepts) {
+      case "image": return "^image/.+$"
+      case "video": return "^video/.+$"
+      case "pdf": return "^application/pdf$"
+      default: console.error(`Unknown accepts type: ${this.accepts}`)
+    }
+  }
+
+  buildErrorMessage() {
+    const id = this.originalId
+    const label = document.querySelector(`label[for='${id}']`).innerText
+    return `${label} must be a ${this.accepts}`
   }
 
   drop(event) {
@@ -171,7 +178,7 @@ export class BardFile extends LitElement {
     `, this, { host: this })
 
     this.fileTarget = this.firstElementChild
-    this.textInput = this.lastElementChild
+    this.textTarget = this.lastElementChild
   }
 
   render() { // Shadow DOM
@@ -193,6 +200,8 @@ export class BardFile extends LitElement {
 
         <!-- HACK extra target for queue submissions -->
         <div class="media-preview -stacked"></div>
+
+        <p>${this.title}</p>
 
         <div class="media-preview ${this.multiple ? "-stacked" : ''}" data-file-preview-target="previews">
           ${this.files.map((file, index) => this.renderPreview(file, index))}
@@ -219,7 +228,7 @@ export class BardFile extends LitElement {
     return html`
       <figure class="${klass}">
         <div class="direct-upload separate-upload direct-upload--${this.state}">
-          <div class="direct-upload__progress" title="${this.title}" style="width: ${this.percent}%"></div>
+          <div class="direct-upload__progress" style="width: ${this.percent}%"></div>
           <span class="direct-upload__filename">${file.name}</span>
         </div>
         <a class="remove-media" href="#" style="opacity: 1" data-action="file-preview#remove" data-file-preview-index-param="${index}"><span>Remove media</span></a>
