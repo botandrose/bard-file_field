@@ -2,6 +2,7 @@ import { html, css, LitElement } from 'lit'
 import { render } from "lit-html"
 import styles from "./css.js"
 import getMimeType from "./get_mime_type"
+import formatBytes from "./format_bytes"
 import isConstructor from "./is_constructor"
 import FormController from "./form-controller"
 
@@ -10,12 +11,15 @@ export class BardFile extends LitElement {
 
   static properties = {
     name: { type: String },
+    directupload: { type: String },
     multiple: { type: Boolean },
-    required: { type: Boolean },
+
     previewfilename: { type: String },
     previewsrc: { type: String },
+
+    required: { type: Boolean },
     accepts: { type: String },
-    directupload: { type: String },
+    max: { type: Number },
 
     files: { state: true },
     highlighted: { state: true },
@@ -57,11 +61,11 @@ export class BardFile extends LitElement {
           return file
         })
       })).then(files => {
-        if(this.allValid(files)) {
+        if(this.validate(files)) {
           this.files = files
           this.formController.inputChanged(event, this.textTarget)
         } else {
-          this.title = this.buildErrorMessage()
+          this.title = this.errors.map(e => `${e}. `)
           this.textTarget.value = ""
           this.fileTarget.value = ""
           this.fileTarget.dispatchEvent(new Event("change"))
@@ -70,8 +74,21 @@ export class BardFile extends LitElement {
     // }
   }
 
-  allValid(files) {
-    return files.every(file => new RegExp(this.acceptsRegex).test(file.mimetype))
+  validate(files) {
+    this.errors = []
+    const label = document.querySelector(`label[for='${this.originalId}']`).innerText
+
+    files.forEach(file => {
+      if(!new RegExp(this.acceptsRegex).test(file.mimetype)) {
+        this.errors.push(`${label} must be a ${this.accepts}`)
+      }
+
+      if(file.size > this.max) {
+        this.errors.push(`${label} must be smaller than ${formatBytes(this.max)}, and "${file.name}" is ${formatBytes(file.size)}. Please attach a smaller file.`)
+      }
+    })
+
+    return this.errors.length == 0
   }
 
   get acceptsRegex() {
@@ -81,12 +98,6 @@ export class BardFile extends LitElement {
       case "pdf": return "^application/pdf$"
       default: console.error(`Unknown accepts type: ${this.accepts}`)
     }
-  }
-
-  buildErrorMessage() {
-    const id = this.originalId
-    const label = document.querySelector(`label[for='${id}']`).innerText
-    return `${label} must be a ${this.accepts}`
   }
 
   drop(event) {

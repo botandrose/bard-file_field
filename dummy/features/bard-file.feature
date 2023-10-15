@@ -26,3 +26,12 @@ Feature: <bard-file> is an improved file input with extra features
     Then I should not see "Post created!"
     And I should not see "video.mp4"
 
+  Scenario: It supports file size validation
+    When I attach the file "video.mp4" to "Image"
+    Then I should see "Image must be smaller than 100KB" within the bard-file
+    Then I should not see a preview within the bard-file
+
+    When I press "Submit"
+    Then I should not see "Post created!"
+    And I should not see "video.mp4"
+
