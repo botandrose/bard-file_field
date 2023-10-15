@@ -2,6 +2,10 @@ Given "I am on the homepage" do
   visit '/'
 end
 
+When "I fill in {string} with {string}" do |field, value|
+  fill_in field, with: value
+end
+
 When "I attach the file {string} to {string}" do |path, field|
   attach_file field, Rails.root.join("features/support/fixtures/#{path}")
 end
@@ -13,6 +17,10 @@ end
 
 When "I press {string}" do |button|
   click_button button
+end
+
+Then "I should see {string} filled in with {string}" do |field, value|
+  expect(find_field(field).value).to eq(value)
 end
 
 Then /^I should see "(.*?)"$/ do |text|

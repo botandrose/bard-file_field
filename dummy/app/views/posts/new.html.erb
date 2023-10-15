@@ -1,13 +1,20 @@
 <%= form_for @post do |form| %>
-  <label for="post_image">Image</label>
-  <bard-file
-    id="post_image"
-    name="post[image]"
-    directupload="<%= rails_direct_uploads_url %>"
-    accepts="image"
-    max="<%= 100.kilobytes %>"
-  ></bard-file>
-  <input type="submit" value="Submit">
+  <p>
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name">
+  </p>
+
+  <p>
+    <label for="post_image">Image</label>
+    <bard-file
+      id="post_image"
+      name="post[image]"
+      directupload="<%= rails_direct_uploads_url %>"
+      accepts="image"
+      max="<%= 100.kilobytes %>"
+    ></bard-file>
+    <input type="submit" value="Submit">
+  </p>
 
   <div class="direct-upload-wrapper">
     <div class="direct-upload-content">
@@ -16,3 +23,10 @@
     </div>
   </div>
 <% end %>
+
+<script type="module">
+  import FormPersistence from "form-persistence"
+  const form = document.querySelector("form")
+  FormPersistence.persist(form)
+</script>
+

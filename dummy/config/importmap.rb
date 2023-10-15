@@ -33,3 +33,6 @@ pin "strtok3/core", to: "https://ga.jspm.io/npm:strtok3@7.0.0/lib/core.js"
 pin "token-types", to: "https://ga.jspm.io/npm:token-types@5.0.1/lib/index.js"
 pin "util", to: "https://ga.jspm.io/npm:@jspm/core@2.0.1/nodelibs/browser/util.js"
 pin "util-deprecate", to: "https://ga.jspm.io/npm:util-deprecate@1.0.2/browser.js"
+
+pin "form-persistence", to: "https://cdn.jsdelivr.net/npm/form-persistence@2.0.6/form-persistence.js/+esm"
+

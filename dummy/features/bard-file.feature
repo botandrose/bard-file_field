@@ -35,3 +35,11 @@ Feature: <bard-file> is an improved file input with extra features
     Then I should not see "Post created!"
     And I should not see "video.mp4"
 
+  Scenario: It supports naive serialization and resumption with the form-persistence npm package
+    When I fill in "Name" with "Jerry"
+    And I attach the file "image.jpg" to "Image"
+
+    Given I am on the homepage
+    Then I should see "Name" filled in with "Jerry"
+    And I should see a preview of "image.jpg" within the bard-file
+
