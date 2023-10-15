@@ -35,14 +35,6 @@ export class BardFile extends LitElement {
     this.removeAttribute("id")
   }
 
-  init(event) {
-    const { id, file } = event.detail
-    this.state = "pending"
-    this.previewfilename = file.name
-    this.percent = 0
-    this.formController.init(event)
-  }
-
   /*
     if options[:require_type].present?
       if options[:require_type] == "image"
@@ -123,6 +115,14 @@ export class BardFile extends LitElement {
     event.stopPropagation()
   }
 
+  init(event) {
+    const { id, file } = event.detail
+    this.state = "pending"
+    this.previewfilename = file.name
+    this.percent = 0
+    this.formController.init(event)
+  }
+
   start(event) {
     this.state = "uploading"
     this.formController.start(event)
@@ -195,7 +195,7 @@ export class BardFile extends LitElement {
         <div class="media-preview -stacked"></div>
 
         <div class="media-preview ${this.multiple ? "-stacked" : ''}" data-file-preview-target="previews">
-          ${this.files.map(this.renderPreview)}
+          ${this.files.map((file, index) => this.renderPreview(file, index))}
         </div>
       </label>
     `;
@@ -218,8 +218,11 @@ export class BardFile extends LitElement {
 
     return html`
       <figure class="${klass}">
+        <div class="direct-upload separate-upload direct-upload--${this.state}">
+          <div class="direct-upload__progress" title="${this.title}" style="width: ${this.percent}%"></div>
+          <span class="direct-upload__filename">${file.name}</span>
+        </div>
         <a class="remove-media" href="#" style="opacity: 1" data-action="file-preview#remove" data-file-preview-index-param="${index}"><span>Remove media</span></a>
-        <figcaption>${file.name}</figcaption>
         ${media}
       </figure>
     `
