@@ -1,76 +1,29 @@
-# \<bard-file>
+# Bard::File
 
-This webcomponent follows the [open-wc](https://github.com/open-wc/open-wc) recommendation.
+Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/bard/file`. To experiment with that code, run `bin/console` for an interactive prompt.
+
+TODO: Delete this and the text above, and describe your gem
 
 ## Installation
 
-```bash
-npm i bard-file
-```
+Install the gem and add to the application's Gemfile by executing:
+
+    $ bundle add bard-file
+
+If bundler is not being used to manage dependencies, install the gem by executing:
+
+    $ gem install bard-file
 
 ## Usage
 
-```html
-<script type="module">
-  import 'bard-file/bard-file.js';
-</script>
+TODO: Write usage instructions here
 
-<bard-file></bard-file>
-```
+## Development
 
-## Linting and formatting
+After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To scan the project for linting and formatting errors, run
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
-```bash
-npm run lint
-```
+## Contributing
 
-To automatically fix linting and formatting errors, run
-
-```bash
-npm run format
-```
-
-## Testing with Web Test Runner
-
-To execute a single test run:
-
-```bash
-npm run test
-```
-
-To run the tests in interactive watch mode run:
-
-```bash
-npm run test:watch
-```
-
-## Demoing with Storybook
-
-To run a local instance of Storybook for your component, run
-
-```bash
-npm run storybook
-```
-
-To build a production version of Storybook, run
-
-```bash
-npm run storybook:build
-```
-
-
-## Tooling configs
-
-For most of the tools, the configuration is in the `package.json` to minimize the amount of files in your project.
-
-If you customize the configuration a lot, you can consider moving them to individual files.
-
-## Local Demo with `web-dev-server`
-
-```bash
-npm start
-```
-
-To run a local development server that serves the basic demo located in `demo/index.html`
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/bard-file.
