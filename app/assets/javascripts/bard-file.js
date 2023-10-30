@@ -1,13 +1,13 @@
 import { html, css, LitElement } from 'lit'
 import { render } from "lit-html"
-import styles from "./css.js"
-import getMimeType from "./get_mime_type"
-import formatBytes from "./format_bytes"
-import isConstructor from "./is_constructor"
-import FormController from "./form-controller"
+import styles from "bard-file/css"
+import getMimeType from "bard-file/get-mime-type"
+import formatBytes from "bard-file/format-bytes"
+import isConstructor from "bard-file/is-constructor"
+import FormController from "bard-file/form-controller"
 import { get } from "rails-request-json"
 
-export class BardFile extends LitElement {
+class BardFile extends LitElement {
   static styles = styles
 
   static properties = {
@@ -84,12 +84,16 @@ export class BardFile extends LitElement {
     const label = document.querySelector(`label[for='${this.originalId}']`).innerText
 
     files.forEach(file => {
-      if(!new RegExp(this.acceptsRegex).test(file.mimetype)) {
-        this.errors.push(`${label} must be a ${this.accepts}`)
+      if(this.accepts) {
+        if(!new RegExp(this.acceptsRegex).test(file.mimetype)) {
+          this.errors.push(`${label} must be a ${this.accepts}`)
+        }
       }
 
-      if(file.size > this.max) {
-        this.errors.push(`${label} must be smaller than ${formatBytes(this.max)}, and "${file.name}" is ${formatBytes(file.size)}. Please attach a smaller file.`)
+      if(this.max) {
+        if(file.size > this.max) {
+          this.errors.push(`${label} must be smaller than ${formatBytes(this.max)}, and "${file.name}" is ${formatBytes(file.size)}. Please attach a smaller file.`)
+        }
       }
     })
 
@@ -275,3 +279,5 @@ export class BardFile extends LitElement {
     `
   }
 }
+
+customElements.define("bard-file", BardFile)
