@@ -50,3 +50,7 @@ Feature: <bard-file> is an improved file input with extra features
     And I should see "image.jpg"
     And I should see the "image.jpg" image
 
+  # Scenario: It supports drag and drop
+  # Scenario: It can remove a not-yet-submitted file
+  # Scenario: It can remove an existing file
+
