@@ -36,8 +36,8 @@ module Bard
         # preview_method = @method_name.to_s.sub(/_file$/,"").to_sym
         # preview = object.try(preview_method)
 
-        attachment = object.send(@method_name)
-        if attachment.attached?
+        attachment = object.try(@method_name)
+        if attachment&.attached?
           options["previewsrc"] = @template_object.url_for(attachment)
           options["previewfilename"] = attachment.filename
           options["previewmimetype"] = attachment.content_type

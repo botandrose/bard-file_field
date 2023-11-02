@@ -14,6 +14,8 @@ class BardFile {
     bardFile.mimetype = props.mimetype
     bardFile.name = props.name
     bardFile.size = 0 // HACK always pass max file check
+    bardFile.state = "complete"
+    bardFile.percent = 100
     return bardFile
   }
 
@@ -24,6 +26,8 @@ class BardFile {
     const extension = file.name.split(".").at(-1)
     bardFile.mimetype = Mime.getType(extension)
     bardFile.size = file.size
+    bardFile.state = "pending"
+    bardFile.percent = 0
     return bardFile
   }
 }
@@ -46,10 +50,6 @@ class BardFileField extends LitElement {
 
     files: { state: true },
     highlighted: { state: true },
-
-    state: { state: true },
-    title: { state: true },
-    percent: { state: true },
   }
 
   constructor() {
@@ -85,9 +85,13 @@ class BardFileField extends LitElement {
     const signedId = event.target.value
     if(signedId.length > 0) {
       get(`/previews/${signedId}`).then(blob => {
-        this.files = [BardFile.fromProperties({
-          name: blob.filename,
-        })]
+        this.files = [
+          BardFile.fromProperties({
+            name: blob.filename,
+            mimetype: blob.content_type,
+            size: blob.byte_size,
+          })
+        ]
       })
     }
   }
@@ -174,33 +178,42 @@ class BardFileField extends LitElement {
 
   init(event) {
     const { id, file } = event.detail
-    this.state = "pending"
-    this.previewfilename = file.name
-    this.percent = 0
+    const bardFile = this.files[0] // FIXME
+    bardFile.state = "pending"
+    bardFile.percent = 0
+    this.requestUpdate()
     this.formController.init(event)
   }
 
   start(event) {
-    this.state = "uploading"
+    const bardFile = this.files[0] // FIXME
+    bardFile.state = "pending"
+    this.requestUpdate()
     this.formController.start(event)
   }
 
   progress(event) {
     const { id, progress } = event.detail
-    this.percent = progress
+    const bardFile = this.files[0] // FIXME
+    bardFile.percent = progress
+    this.requestUpdate()
     this.formController.progress(event)
   }
 
   error(event) {
     event.preventDefault()
     const { id, error } = event.detail
-    this.state = "error"
-    this.error = error
+    const bardFile = this.files[0] // FIXME
+    bardFile.state = "error"
+    bardFile.error = error
+    this.requestUpdate()
     this.formController.error(event)
   }
 
   end(event) {
-    this.state = "complete"
+    const bardFile = this.files[0] // FIXME
+    bardFile.state = "complete"
+    this.requestUpdate()
     this.formController.end(event)
   }
 
@@ -295,13 +308,11 @@ class BardFileField extends LitElement {
   renderPreview(file, index) {
     let klass, media
     if(["image/jpeg", "image/png"].includes(file.mimetype)) {
-      const url = file.src || URL.createObjectURL(file)
       klass = "image-preview"
-      media = html`<img src='${url}'>`
+      media = html`<img src='${file.src}'>`
     } else if(file.mimetype === "video/mp4") {
-      const url = file.src || URL.createObjectURL(file)
       klass = "video-preview"
-      media = html`<video src='${url}' onclick='this.paused ? this.play() : this.pause(); return false'>`
+      media = html`<video src='${file.src}' onclick='this.paused ? this.play() : this.pause(); return false'>`
     } else {
       klass = "missing-preview"
       media = "This media does not offer a preview"
@@ -309,8 +320,8 @@ class BardFileField extends LitElement {
 
     return html`
       <figure class="${klass}">
-        <div class="direct-upload separate-upload direct-upload--${this.state}">
-          <div class="direct-upload__progress" style="width: ${this.percent}%"></div>
+        <div class="direct-upload separate-upload direct-upload--${file.state}">
+          <div class="direct-upload__progress" style="width: ${file.percent}%"></div>
           <span class="direct-upload__filename">${file.name}</span>
         </div>
         <a class="remove-media" @click="${{ handleEvent: e => { this.removeFile(index); e.stopPropagation() } }}" href="#">
