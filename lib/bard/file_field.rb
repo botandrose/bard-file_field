@@ -12,7 +12,6 @@ module Bard
             bard-file/css.js
             bard-file/form-controller.js
             bard-file/format-bytes.js
-            bard-file/get-mime-type.js
             bard-file/is-constructor.js
           ]
         end

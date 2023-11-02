@@ -1,13 +1,34 @@
 import { html, css, LitElement } from 'lit'
 import { render } from "lit-html"
 import styles from "bard-file/css"
-import getMimeType from "bard-file/get-mime-type"
 import formatBytes from "bard-file/format-bytes"
 import isConstructor from "bard-file/is-constructor"
 import FormController from "bard-file/form-controller"
+import Mime from "mime"
 import { get } from "rails-request-json"
 
-class BardFile extends LitElement {
+class BardFile {
+  static fromProperties(props) {
+    const bardFile = new BardFile()
+    bardFile.src = props.src
+    bardFile.mimetype = props.mimetype
+    bardFile.name = props.name
+    bardFile.size = 0 // HACK always pass max file check
+    return bardFile
+  }
+
+  static fromFile(file) {
+    const bardFile = new BardFile()
+    bardFile.src = URL.createObjectURL(file)
+    bardFile.name = file.name
+    const extension = file.name.split(".").at(-1)
+    bardFile.mimetype = Mime.getType(extension)
+    bardFile.size = file.size
+    return bardFile
+  }
+}
+
+class BardFileField extends LitElement {
   static styles = styles
 
   static properties = {
@@ -46,11 +67,13 @@ class BardFile extends LitElement {
     this.formController = FormController.forForm(this.closest("form"))
 
     if(this.previewsrc) {
-      this.files = [{
-        src: this.previewsrc,
-        mimetype: this.previewmimetype,
-        name: this.previewfilename,
-      }]
+      this.files = [
+        BardFile.fromProperties({
+          src: this.previewsrc,
+          mimetype: this.previewmimetype,
+          name: this.previewfilename,
+        })
+      ]
     }
   }
 
@@ -62,32 +85,28 @@ class BardFile extends LitElement {
     const signedId = event.target.value
     if(signedId.length > 0) {
       get(`/previews/${signedId}`).then(blob => {
-        this.files = [{ mimetype: "unavailable", name: blob.filename }]
+        this.files = [BardFile.fromProperties({
+          name: blob.filename,
+        })]
       })
     }
   }
 
   fileTargetChanged(event) {
-    Promise.all(Array.from(this.fileTarget.files).map(file => {
-      return getMimeType(file).then(mimetype => {
-        file.mimetype = mimetype
-        file.src = URL.createObjectURL(file)
-        return file
-      })
-    })).then(files => {
-      if(this.validate(files)) {
-        this.title = files[0]?.name
-        this.files = files
-        this.textTarget.setCustomValidity("")
-        this.formController.inputChanged(event, this.textTarget)
-      } else {
-        this.title = this.errors.map(e => `${e}. `).join("")
-        this.textTarget.value = ""
-        this.textTarget.setCustomValidity(this.title)
-        this.fileTarget.value = ""
-      }
-      this.textTarget.reportValidity()
-    })
+    const files = Array.from(this.fileTarget.files).map(f => BardFile.fromFile(f))
+    if(this.validate(files)) {
+      this.title = files[0]?.name
+      this.files = files
+      this.textTarget.setCustomValidity("")
+      this.formController.inputChanged(event, this.textTarget)
+    } else {
+      this.title = this.errors.map(e => `${e}. `).join("")
+      this.files = []
+      this.textTarget.value = ""
+      this.textTarget.setCustomValidity(this.title)
+      this.fileTarget.value = ""
+    }
+    this.textTarget.reportValidity()
   }
 
   validate(files) {
@@ -303,4 +322,4 @@ class BardFile extends LitElement {
   }
 }
 
-customElements.define("bard-file", BardFile)
+customElements.define("bard-file", BardFileField)
