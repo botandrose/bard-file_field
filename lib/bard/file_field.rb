@@ -37,7 +37,7 @@ module Bard
         preview_method = @method_name.to_s.sub(/_file$/,"").to_sym
         preview = object.try(preview_method)
         options["previewfilename"] = preview&.filename
-        options["previewsrc"] = preview && @template.url_for(preview.thumb_src)
+        options["previewsrc"] = preview && @template_object.url_for(preview.thumb_src)
 
         tag("bard-file", options)
       end

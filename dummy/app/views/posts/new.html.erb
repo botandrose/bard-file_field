@@ -1,20 +1,15 @@
-<%= form_for @post do |form| %>
+<%= form_with model: @post, id: "new_post_form" do |form| %>
   <p>
-    <label for="name">Name</label>
-    <input type="text" id="name" name="name">
+    <%= form.label :name %>
+    <%= form.text_field :name %>
   </p>
 
   <p>
-    <label for="post_image">Image</label>
-    <bard-file
-      id="post_image"
-      name="post[image]"
-      directupload="<%= rails_direct_uploads_url %>"
-      accepts="image"
-      max="<%= 100.kilobytes %>"
-    ></bard-file>
-    <input type="submit" value="Submit">
+    <%= form.label :image %>
+    <%= form.bard_file_field :image, accepts: "image", max: 100.kilobytes %>
   </p>
+
+  <p><%= form.submit "Submit" %></p>
 
   <div class="direct-upload-wrapper">
     <div class="direct-upload-content">

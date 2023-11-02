@@ -1,3 +1,8 @@
+PATH
+  remote: ..
+  specs:
+    bard-file_field (0.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -310,6 +315,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  bard-file_field!
   bootsnap
   byebug
   capybara-screenshot

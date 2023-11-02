@@ -1,3 +1,2 @@
-import { BardFile } from './src/BardFile.js'
+import 'bard-file'
 
-customElements.define("bard-file", BardFile)
