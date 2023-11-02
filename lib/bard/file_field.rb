@@ -34,10 +34,15 @@ module Bard
         options["directupload"] = "/rails/active_storage/direct_uploads"
         add_default_name_and_id(options)
 
-        preview_method = @method_name.to_s.sub(/_file$/,"").to_sym
-        preview = object.try(preview_method)
-        options["previewfilename"] = preview&.filename
-        options["previewsrc"] = preview && @template_object.url_for(preview.thumb_src)
+        # preview_method = @method_name.to_s.sub(/_file$/,"").to_sym
+        # preview = object.try(preview_method)
+
+        attachment = object.send(@method_name)
+        if attachment.attached?
+          options["previewsrc"] = @template_object.url_for(attachment)
+          options["previewfilename"] = attachment.filename
+          options["previewmimetype"] = attachment.content_type
+        end
 
         tag("bard-file", options)
       end

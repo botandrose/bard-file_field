@@ -15,8 +15,9 @@ class BardFile extends LitElement {
     directupload: { type: String },
     multiple: { type: Boolean },
 
-    previewfilename: { type: String },
     previewsrc: { type: String },
+    previewfilename: { type: String },
+    previewmimetype: { type: String },
 
     required: { type: Boolean },
     accepts: { type: String },
@@ -43,6 +44,14 @@ class BardFile extends LitElement {
   connectedCallback() {
     super.connectedCallback()
     this.formController = FormController.forForm(this.closest("form"))
+
+    if(this.previewsrc) {
+      this.files = [{
+        src: this.previewsrc,
+        mimetype: this.previewmimetype,
+        name: this.previewfilename,
+      }]
+    }
   }
 
   openFilePicker() {
@@ -267,13 +276,13 @@ class BardFile extends LitElement {
   renderPreview(file, index) {
     let klass, media
     if(["image/jpeg", "image/png"].includes(file.mimetype)) {
-      const blobUrl = URL.createObjectURL(file)
+      const url = file.src || URL.createObjectURL(file)
       klass = "image-preview"
-      media = html`<img src='${blobUrl}'>`
+      media = html`<img src='${url}'>`
     } else if(file.mimetype === "video/mp4") {
-      const blobUrl = URL.createObjectURL(file)
+      const url = file.src || URL.createObjectURL(file)
       klass = "video-preview"
-      media = html`<video src='${blobUrl}' onclick='this.paused ? this.play() : this.pause(); return false'>`
+      media = html`<video src='${url}' onclick='this.paused ? this.play() : this.pause(); return false'>`
     } else {
       klass = "missing-preview"
       media = "This media does not offer a preview"

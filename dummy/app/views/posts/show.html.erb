@@ -3,3 +3,5 @@
   <h2><%= @post.image.filename %></h2>
   <p><%= image_tag @post.image %></p>
 <% end %>
+
+<p><%= link_to "Edit", [:edit, @post] %></p>

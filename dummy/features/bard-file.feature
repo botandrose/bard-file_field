@@ -61,7 +61,20 @@ Feature: <bard-file> is an improved file input with extra features
     And I should not see "image.jpg"
     And I should not see the "image.jpg" image
 
-  # Scenario: It supports drag and drop
+  Scenario: It can remove an existing file
+    When I fill in "Name" with "Image"
+    And I attach the file "image.jpg" to "Image"
+    And I press "Submit"
+    Then I should see "Post created!"
+    And I should see "image.jpg"
+    And I should see the "image.jpg" image
 
-  # Scenario: It can remove an existing file
+    When I follow "Edit"
+    And I follow "Remove media" within the bard-file
+    And I press "Submit"
+    Then I should see "Post updated!"
+    And I should not see "image.jpg"
+    And I should not see the "image.jpg" image
+
+  # Scenario: It supports drag and drop
 
