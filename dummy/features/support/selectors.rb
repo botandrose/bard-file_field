@@ -13,7 +13,7 @@ module WithinHelpers
       page.document.synchronize errors: [Ferrum::JavaScriptError] do
         root.has_css?("*")
       end
-      root
+      root.first("label")
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:

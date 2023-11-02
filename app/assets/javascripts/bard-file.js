@@ -59,24 +59,26 @@ class BardFile extends LitElement {
   }
 
   fileTargetChanged(event) {
-      Promise.all(Array.from(this.fileTarget.files).map(file => {
-        return getMimeType(file).then(mimetype => {
-          file.mimetype = mimetype
-          file.src = URL.createObjectURL(file)
-          return file
-        })
-      })).then(files => {
-        if(this.validate(files)) {
-          this.files = files
-          this.formController.inputChanged(event, this.textTarget)
-        } else {
-          this.title = this.errors.map(e => `${e}. `)
-          this.textTarget.value = ""
-          this.fileTarget.value = ""
-          this.fileTarget.dispatchEvent(new Event("change"))
-        }
+    Promise.all(Array.from(this.fileTarget.files).map(file => {
+      return getMimeType(file).then(mimetype => {
+        file.mimetype = mimetype
+        file.src = URL.createObjectURL(file)
+        return file
       })
-    // }
+    })).then(files => {
+      if(this.validate(files)) {
+        this.title = files[0]?.name
+        this.files = files
+        this.textTarget.setCustomValidity("")
+        this.formController.inputChanged(event, this.textTarget)
+      } else {
+        this.title = this.errors.map(e => `${e}. `).join("")
+        this.textTarget.value = ""
+        this.textTarget.setCustomValidity(this.title)
+        this.fileTarget.value = ""
+      }
+      this.textTarget.reportValidity()
+    })
   }
 
   validate(files) {
@@ -174,12 +176,20 @@ class BardFile extends LitElement {
     this.formController.end(event)
   }
 
+  removeFile(index) {
+    this.files.splice(index, 1)
+    this.textTarget.value = ""
+    this.fileTarget.value = ""
+    this.fileTarget.dispatchEvent(new Event("change"))
+  }
+
   firstUpdated() { // Light DOM
     render(html`
       <input
+        style="opacity: 0.01; position: absolute; z-index: -999"
         id="${this.originalId}"
         type="file"
-        multiple="${this.multiple}"
+        .multiple="${this.multiple}"
         data-direct-upload-url="${this.directupload}"
 
         @direct-upload:initialize="${this.init}"
@@ -191,7 +201,8 @@ class BardFile extends LitElement {
         @change="${this.fileTargetChanged}"
       >
       <input
-        required="${this.required}"
+        style="opacity: 0.01; position: absolute; z-index: -999"
+        .required="${this.required}"
         name="${this.name}"
         type="text"
         @change="${this.textTargetChanged}"
@@ -225,6 +236,7 @@ class BardFile extends LitElement {
 
   render() { // Shadow DOM
     return html`
+      <slot></slot>
       <label class="drag-media ${this.class} ${this.highlighted ? "-dragover" : ''}"
         @click="${this.openFilePicker}"
 
@@ -273,7 +285,9 @@ class BardFile extends LitElement {
           <div class="direct-upload__progress" style="width: ${this.percent}%"></div>
           <span class="direct-upload__filename">${file.name}</span>
         </div>
-        <a class="remove-media" href="#" style="opacity: 1" data-action="file-preview#remove" data-file-preview-index-param="${index}"><span>Remove media</span></a>
+        <a class="remove-media" @click="${{ handleEvent: e => { this.removeFile(index); e.stopPropagation() } }}" href="#">
+          <span>Remove media</span>
+        </a>
         ${media}
       </figure>
     `

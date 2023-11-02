@@ -15,6 +15,10 @@ When "I attach the following files to {string}:" do |field, table|
   attach_file field, files
 end
 
+When "I follow {string}" do |link|
+  find_link(link).trigger "click"
+end
+
 When "I press {string}" do |button|
   click_button button
 end
@@ -33,6 +37,10 @@ end
 
 Then "I should see the {string} image" do |filename|
   expect(page).to have_css("img[src$='/#{filename}']")
+end
+
+Then "I should not see the {string} image" do |filename|
+  expect(page).to_not have_css("img[src$='/#{filename}']")
 end
 
 Then "I should see a preview of {string}" do |filename|

@@ -1,2 +1,5 @@
-<h1><%= @post.image.filename %></h1>
-<p><%= image_tag @post.image %></p>
+<h1><%= @post.name %></h1>
+<% if @post.image.attached? %>
+  <h2><%= @post.image.filename %></h2>
+  <p><%= image_tag @post.image %></p>
+<% end %>
