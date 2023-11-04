@@ -9,6 +9,7 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 
 pin "bard-file", to: "bard-file.js"
 pin "bard-file/css", to: "bard-file/css.js"
+pin "bard-file/file", to: "bard-file/file.js"
 pin "bard-file/form-controller", to: "bard-file/form-controller.js"
 pin "bard-file/format-bytes", to: "bard-file/format-bytes.js"
 pin "bard-file/is-constructor", to: "bard-file/is-constructor.js"

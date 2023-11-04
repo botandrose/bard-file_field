@@ -5,7 +5,6 @@ import BardFile from "bard-file/file"
 import formatBytes from "bard-file/format-bytes"
 import isConstructor from "bard-file/is-constructor"
 import FormController from "bard-file/form-controller"
-import Mime from "mime"
 import { get } from "rails-request-json"
 
 class BardFileField extends LitElement {
@@ -276,7 +275,7 @@ class BardFileField extends LitElement {
         <p>${this.title}</p>
 
         <div class="media-preview ${this.multiple ? "-stacked" : ''}">
-          ${this.files.map((file, index) => file.render(() => this.removeFile(index))}
+          ${this.files.map((file, index) => file.render(() => this.removeFile(index)))}
         </div>
       </label>
     `;

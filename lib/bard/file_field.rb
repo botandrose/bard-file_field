@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "file_field/version"
+require_relative "file_field/form_builder"
 
 module Bard
   module FileField
@@ -10,6 +11,7 @@ module Bard
           Rails.application.config.assets.precompile += %w[
             bard-file.js
             bard-file/css.js
+            bard-file/file.js
             bard-file/form-controller.js
             bard-file/format-bytes.js
             bard-file/is-constructor.js
@@ -18,32 +20,7 @@ module Bard
       end
 
       config.after_initialize do
-        ActionView::Base.default_form_builder.include Module.new {
-          def bard_file_field method, options={}
-            self.multipart = true
-            BardFileField.new(@object_name, method, @template, objectify_options(options)).render
-          end
-        }
-      end
-    end
-
-    class BardFileField < ActionView::Helpers::Tags::TextField
-      def render
-        options = @options.stringify_keys
-        options["directupload"] = "/rails/active_storage/direct_uploads"
-        add_default_name_and_id(options)
-
-        # preview_method = @method_name.to_s.sub(/_file$/,"").to_sym
-        # preview = object.try(preview_method)
-
-        attachment = object.try(@method_name)
-        if attachment&.attached?
-          options["previewsrc"] = @template_object.url_for(attachment)
-          options["previewfilename"] = attachment.filename
-          options["previewmimetype"] = attachment.content_type
-        end
-
-        tag("bard-file", options)
+        ActionView::Base.default_form_builder.include FormBuilder
       end
     end
   end

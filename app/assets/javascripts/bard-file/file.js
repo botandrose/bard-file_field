@@ -1,3 +1,6 @@
+import { html } from 'lit'
+import Mime from "mime"
+
 export default class BardFile {
   static fromProperties(props) {
     const bardFile = new BardFile()
@@ -49,5 +52,4 @@ export default class BardFile {
     `
   }
 }
-
 
