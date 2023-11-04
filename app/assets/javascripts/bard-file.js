@@ -1,36 +1,12 @@
 import { html, css, LitElement } from 'lit'
 import { render } from "lit-html"
 import styles from "bard-file/css"
+import BardFile from "bard-file/file"
 import formatBytes from "bard-file/format-bytes"
 import isConstructor from "bard-file/is-constructor"
 import FormController from "bard-file/form-controller"
 import Mime from "mime"
 import { get } from "rails-request-json"
-
-class BardFile {
-  static fromProperties(props) {
-    const bardFile = new BardFile()
-    bardFile.src = props.src
-    bardFile.mimetype = props.mimetype
-    bardFile.name = props.name
-    bardFile.size = 0 // HACK always pass max file check
-    bardFile.state = "complete"
-    bardFile.percent = 100
-    return bardFile
-  }
-
-  static fromFile(file) {
-    const bardFile = new BardFile()
-    bardFile.src = URL.createObjectURL(file)
-    bardFile.name = file.name
-    const extension = file.name.split(".").at(-1)
-    bardFile.mimetype = Mime.getType(extension)
-    bardFile.size = file.size
-    bardFile.state = "pending"
-    bardFile.percent = 0
-    return bardFile
-  }
-}
 
 class BardFileField extends LitElement {
   static styles = styles
@@ -213,6 +189,7 @@ class BardFileField extends LitElement {
   end(event) {
     const bardFile = this.files[0] // FIXME
     bardFile.state = "complete"
+    bardFile.percent = 100
     this.requestUpdate()
     this.formController.end(event)
   }
@@ -298,38 +275,11 @@ class BardFileField extends LitElement {
 
         <p>${this.title}</p>
 
-        <div class="media-preview ${this.multiple ? "-stacked" : ''}" data-file-preview-target="previews">
-          ${this.files.map((file, index) => this.renderPreview(file, index))}
+        <div class="media-preview ${this.multiple ? "-stacked" : ''}">
+          ${this.files.map((file, index) => file.render(() => this.removeFile(index))}
         </div>
       </label>
     `;
-  }
-
-  renderPreview(file, index) {
-    let klass, media
-    if(["image/jpeg", "image/png"].includes(file.mimetype)) {
-      klass = "image-preview"
-      media = html`<img src='${file.src}'>`
-    } else if(file.mimetype === "video/mp4") {
-      klass = "video-preview"
-      media = html`<video src='${file.src}' onclick='this.paused ? this.play() : this.pause(); return false'>`
-    } else {
-      klass = "missing-preview"
-      media = "This media does not offer a preview"
-    }
-
-    return html`
-      <figure class="${klass}">
-        <div class="direct-upload separate-upload direct-upload--${file.state}">
-          <div class="direct-upload__progress" style="width: ${file.percent}%"></div>
-          <span class="direct-upload__filename">${file.name}</span>
-        </div>
-        <a class="remove-media" @click="${{ handleEvent: e => { this.removeFile(index); e.stopPropagation() } }}" href="#">
-          <span>Remove media</span>
-        </a>
-        ${media}
-      </figure>
-    `
   }
 }
 
