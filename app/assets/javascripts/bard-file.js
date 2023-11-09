@@ -272,7 +272,7 @@ class BardFileField extends LitElement {
         <!-- HACK extra target for queue submissions -->
         <div class="media-preview -stacked"></div>
 
-        <p>${this.title}</p>
+
 
         <div class="media-preview ${this.multiple ? "-stacked" : ''}">
           ${this.files.map((file, index) => file.render(() => this.removeFile(index)))}

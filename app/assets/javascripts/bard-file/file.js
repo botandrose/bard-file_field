@@ -47,9 +47,8 @@ export default class BardFile {
         <a class="remove-media" @click="${{ handleEvent: e => { removeCallback(); e.stopPropagation() } }}" href="#">
           <span>Remove media</span>
         </a>
-        ${media}
+        <p>${media}</p>
       </figure>
     `
   }
 }
-
