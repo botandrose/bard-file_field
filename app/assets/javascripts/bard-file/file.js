@@ -3,26 +3,26 @@ import Mime from "mime"
 
 export default class BardFile {
   static fromProperties(props) {
-    const bardFile = new BardFile()
-    bardFile.src = props.src
-    bardFile.mimetype = props.mimetype
-    bardFile.name = props.name
-    bardFile.size = 0 // HACK always pass max file check
-    bardFile.state = "complete"
-    bardFile.percent = 100
-    return bardFile
+    return Object.assign(new BardFile(), {
+      src: props.src,
+      mimetype: props.mimetype,
+      name: props.name,
+      size: 0, // HACK always pass max file check
+      state: "complete",
+      percent: 100,
+    })
   }
 
   static fromFile(file) {
-    const bardFile = new BardFile()
-    bardFile.src = URL.createObjectURL(file)
-    bardFile.name = file.name
     const extension = file.name.split(".").at(-1)
-    bardFile.mimetype = Mime.getType(extension)
-    bardFile.size = file.size
-    bardFile.state = "pending"
-    bardFile.percent = 0
-    return bardFile
+    return Object.assign(new BardFile(), {
+      src: URL.createObjectURL(file),
+      name: file.name,
+      mimetype: Mime.getType(extension),
+      size: file.size,
+      state: "pending",
+      percent: 0,
+    })
   }
 
   render(removeCallback) {
