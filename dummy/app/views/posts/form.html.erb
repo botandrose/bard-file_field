@@ -9,6 +9,11 @@
     <%= form.bard_file_field :image, accepts: "image", max: 100.kilobytes %>
   </p>
 
+  <p>
+    <%= form.label :images %>
+    <%= form.bard_file_field :images, multiple: true, accepts: "image", max: 100.kilobytes %>
+  </p>
+
   <p><%= form.submit "Submit" %></p>
 
   <div class="direct-upload-wrapper">

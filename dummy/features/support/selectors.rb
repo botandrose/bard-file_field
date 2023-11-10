@@ -8,12 +8,14 @@ module WithinHelpers
   def selector_for(locator)
     case locator
 
-    when /the bard-file/
-      root = find("bard-file").shadow_root
+    when /the "(.+)" bard-file/
+      field = find_field($1)
+      bard_file = field.find(:xpath, "..")
+      shadow_root = bard_file.shadow_root
       page.document.synchronize errors: [Ferrum::JavaScriptError] do
-        root.has_css?("*")
+        shadow_root.has_css?("*")
       end
-      root.first("label")
+      shadow_root.first("label")
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:

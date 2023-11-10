@@ -5,7 +5,7 @@ class PostsController < ApplicationController
   end
 
   def create
-    @post = Post.create!(params.require(:post).permit!)
+    @post = Post.create!(post_params)
     redirect_to @post, notice: "Post created!"
   end
 
@@ -20,8 +20,14 @@ class PostsController < ApplicationController
 
   def update
     @post = Post.find(params[:id])
-    @post.update!(params.require(:post).permit!)
+    @post.update!(post_params)
     redirect_to @post, notice: "Post updated!"
+  end
+
+  private
+
+  def post_params
+    params.require(:post).permit(:name, :image)
   end
 end
 

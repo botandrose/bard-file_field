@@ -2,7 +2,7 @@ source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem "bootsnap", require: false
-gem "rails"
+gem "rails", "~>7.1.0"
 gem "sprockets-rails"
 gem "sqlite3", "~> 1.4"
 gem "importmap-rails"
@@ -17,6 +17,7 @@ end
 group :test do
   gem "simplecov"
   gem "cucumber-rails", require: false
+  gem "cucumber", require: false, github: "botandrose/cucumber", branch: "restore_looser_line_numbers"
   gem "cuprite-downloads"
   gem "puma"
   gem "capybara-screenshot"

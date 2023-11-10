@@ -57,3 +57,13 @@ Then "I should see an upload progress bar at 100%" do
   expect(page).to have_css(".direct-upload--complete")
 end
 
+Then "the {string} bard-file should have a validation error containing {string}" do |field, message|
+  field = find_field(field)
+  bard_file = field.find(:xpath, "..")
+  within(bard_file) do
+    el = find("input[type=text]")
+    actual = el.evaluate_script("this.validationMessage")
+    expect(actual).to include message
+  end
+end
+

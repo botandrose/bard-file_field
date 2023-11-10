@@ -79,11 +79,11 @@ class BardFileField extends LitElement {
       this.textTarget.setCustomValidity("")
       this.formController.inputChanged(event, this.textTarget)
     } else {
-      this.title = this.errors.map(e => `${e}. `).join("")
+      this.title = this.errors.join(" ")
       this.files = []
-      this.textTarget.value = ""
+      this.textTarget.value = null
       this.textTarget.setCustomValidity(this.title)
-      this.fileTarget.value = ""
+      this.fileTarget.value = null
     }
     this.textTarget.reportValidity()
   }
@@ -95,7 +95,7 @@ class BardFileField extends LitElement {
     files.forEach(file => {
       if(this.accepts) {
         if(!new RegExp(this.acceptsRegex).test(file.mimetype)) {
-          this.errors.push(`${label} must be a ${this.accepts}`)
+          this.errors.push(`${label} must be a ${this.accepts}.`)
         }
       }
 
@@ -195,8 +195,8 @@ class BardFileField extends LitElement {
 
   removeFile(index) {
     this.files.splice(index, 1)
-    this.textTarget.value = ""
-    this.fileTarget.value = ""
+    this.textTarget.value = null
+    this.fileTarget.value = null
     this.fileTarget.dispatchEvent(new Event("change"))
   }
 
