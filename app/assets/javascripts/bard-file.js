@@ -5,6 +5,7 @@ import BardFile from "bard-file/file"
 import formatBytes from "bard-file/format-bytes"
 import isConstructor from "bard-file/is-constructor"
 import FormController from "bard-file/form-controller"
+import Validations from "bard-file/validations"
 import { get } from "rails-request-json"
 
 class BardFileField extends LitElement {
@@ -74,53 +75,11 @@ class BardFileField extends LitElement {
   fileTargetChanged(event) {
     this.files = Array.from(this.fileTarget.files).map(f => BardFile.fromFile(f))
     if(this.checkValidity()) {
-      this.textTarget.setCustomValidity("")
       this.formController.uploadFiles(this)
     } else {
       this.files = []
       this.textTarget.value = null
-      this.textTarget.setCustomValidity(this.errors.join(" "))
       this.fileTarget.value = null
-    }
-    this.textTarget.reportValidity()
-  }
-
-  checkValidity() {
-    this.errors = []
-    const label = document.querySelector(`label[for='${this.originalId}']`).innerText
-
-    this.files.forEach(file => {
-      if(this.accepts) {
-        if(!new RegExp(this.acceptsRegex).test(file.mimetype)) {
-          this.errors.push(`${label} must be a ${this.accepts}.`)
-        }
-      }
-
-      if(this.max) {
-        if(file.size > this.max) {
-          this.errors.push(`${label} must be smaller than ${formatBytes(this.max)}, and "${file.name}" is ${formatBytes(file.size)}. Please attach a smaller file.`)
-        }
-      }
-    })
-
-    console.log(this.errors)
-    return this.errors.length == 0
-  }
-
-  setCustomValidity(msg) {
-    this.textTarget.setCustomValidity(msg)
-  }
-
-  reportValidity() {
-    this.textTarget.reportValidity()
-  }
-
-  get acceptsRegex() {
-    switch(this.accepts) {
-      case "image": return "^image/.+$"
-      case "video": return "^video/.+$"
-      case "pdf": return "^application/pdf$"
-      default: console.error(`Unknown accepts type: ${this.accepts}`)
     }
   }
 
@@ -299,5 +258,7 @@ class BardFileField extends LitElement {
     })
   }
 }
+
+Object.assign(BardFileField.prototype, Validations)
 
 customElements.define("bard-file", BardFileField)
