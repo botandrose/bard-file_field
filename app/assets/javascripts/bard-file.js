@@ -2,7 +2,6 @@ import { html, css, LitElement } from 'lit'
 import { render } from "lit-html"
 import styles from "bard-file/css"
 import BardFile from "bard-file/file"
-import formatBytes from "bard-file/format-bytes"
 import isConstructor from "bard-file/is-constructor"
 import FormController from "bard-file/form-controller"
 import Validations from "bard-file/validations"
