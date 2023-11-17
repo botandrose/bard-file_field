@@ -72,9 +72,8 @@ class BardFileField extends LitElement {
   }
 
   fileTargetChanged(event) {
-    const files = Array.from(this.fileTarget.files).map(f => BardFile.fromFile(f))
-    if(this.validate(files)) {
-      this.files = files
+    this.files = Array.from(this.fileTarget.files).map(f => BardFile.fromFile(f))
+    if(this.checkValidity()) {
       this.textTarget.setCustomValidity("")
       this.formController.uploadFiles(this)
     } else {
@@ -86,11 +85,11 @@ class BardFileField extends LitElement {
     this.textTarget.reportValidity()
   }
 
-  validate(files) {
+  checkValidity() {
     this.errors = []
     const label = document.querySelector(`label[for='${this.originalId}']`).innerText
 
-    files.forEach(file => {
+    this.files.forEach(file => {
       if(this.accepts) {
         if(!new RegExp(this.acceptsRegex).test(file.mimetype)) {
           this.errors.push(`${label} must be a ${this.accepts}.`)
@@ -104,7 +103,16 @@ class BardFileField extends LitElement {
       }
     })
 
+    console.log(this.errors)
     return this.errors.length == 0
+  }
+
+  setCustomValidity(msg) {
+    this.textTarget.setCustomValidity(msg)
+  }
+
+  reportValidity() {
+    this.textTarget.reportValidity()
   }
 
   get acceptsRegex() {
