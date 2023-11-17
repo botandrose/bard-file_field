@@ -74,15 +74,13 @@ class BardFileField extends LitElement {
   fileTargetChanged(event) {
     const files = Array.from(this.fileTarget.files).map(f => BardFile.fromFile(f))
     if(this.validate(files)) {
-      this.title = files[0]?.name
       this.files = files
       this.textTarget.setCustomValidity("")
-      this.formController.inputChanged(event, this.textTarget)
+      this.formController.uploadFiles(this)
     } else {
-      this.title = this.errors.join(" ")
       this.files = []
       this.textTarget.value = null
-      this.textTarget.setCustomValidity(this.title)
+      this.textTarget.setCustomValidity(this.errors.join(" "))
       this.fileTarget.value = null
     }
     this.textTarget.reportValidity()
@@ -269,16 +267,28 @@ class BardFileField extends LitElement {
         <strong>Choose ${this.multiple ? "files" : "file"} </strong>
         <span>or drag ${this.multiple ? "them" : "it"} here.</span>
 
-        <!-- HACK extra target for queue submissions -->
-        <div class="media-preview -stacked"></div>
-
-
-
         <div class="media-preview ${this.multiple ? "-stacked" : ''}">
           ${this.files.map((file, index) => file.render(() => this.removeFile(index)))}
         </div>
       </label>
     `;
+  }
+
+  writeSignedIds() {
+    this.files.forEach((file, index) => {
+      Array.from(this.querySelectorAll("input[type=hidden]")).forEach(e => e.parentNode.removeChild(e))
+      if(index === 0) {
+        // don't use .value= setter because its modified to trigger change event
+        // this.textTarget.value = file.signedId
+        this.textTarget.setAttribute("value", file.signedId)
+      } else {
+        const hiddenInput = document.createElement("input")
+        hiddenInput.type = "hidden"
+        hiddenInput.name = this.name
+        hiddenInput.value = file.signedId
+        this.insertAdjacentElement("beforeend", hiddenInput)
+      }
+    })
   }
 }
 

@@ -1,7 +1,16 @@
 <h1><%= @post.name %></h1>
+
 <% if @post.image.attached? %>
   <h2><%= @post.image.filename %></h2>
   <p><%= image_tag @post.image %></p>
+<% end %>
+
+<% if @post.images.any? %>
+  <h2>Images:</dt>
+  <% @post.images.each do |image| %>
+    <dt><%= image.filename %></dt>
+    <dd><%= image_tag image %></dd>
+  <% end %>
 <% end %>
 
 <p><%= link_to "Edit", [:edit, @post] %></p>

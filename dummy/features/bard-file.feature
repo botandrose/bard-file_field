@@ -92,6 +92,16 @@ Feature: <bard-file> is an improved file input with extra features
     And I should see the "image2.jpg" image
 
   Scenario: It supports multiple files
+    When I attach the following files to "Images":
+      | image.jpg  |
+      | image2.jpg |
+    And I press "Submit"
+    Then I should see "Post created!"
+    And I should see "image.jpg"
+    And I should see the "image.jpg" image
+    And I should see "image2.jpg"
+    And I should see the "image2.jpg" image
+
   # Scenario: It supports drag and drop
   # Scenario: The delete button is clicked mid-upload
   # Scenario: A new file is chosen mid-upload

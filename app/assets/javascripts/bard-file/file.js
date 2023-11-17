@@ -10,6 +10,7 @@ export default class BardFile {
       size: 0, // HACK always pass max file check
       state: "complete",
       percent: 100,
+      file: null,
     })
   }
 
@@ -22,6 +23,7 @@ export default class BardFile {
       size: file.size,
       state: "pending",
       percent: 0,
+      file: file,
     })
   }
 
