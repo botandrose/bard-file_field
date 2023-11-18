@@ -1,12 +1,26 @@
 import { html } from 'lit'
 import Mime from "mime"
 
+//import { get } from "rails-request-json"
+import { FetchRequest } from '@rails/request.js'
+const request = (verb, url, payload) => {
+  const req = new FetchRequest(verb, url, {
+    headers: { Accept: "application/json" },
+    body: payload,
+  })
+  return req.perform().then(response => {
+    // FIXME doesn't deal with 304s. push upstream?
+    // if(response.response.headers.get('Content-Length') > 0) {
+    if(response.response.ok) {
+      return response.json
+    }
+  })
+}
+const get = (url, payload) => request('get', url, payload)
+
 export default class BardFile {
   static fromProperties(props) {
-    return Object.assign(new BardFile(), {
-      src: props.src,
-      mimetype: props.mimetype,
-      name: props.name,
+    return Object.assign(new BardFile(), props, {
       size: 0, // HACK always pass max file check
       state: "complete",
       percent: 100,
@@ -24,6 +38,17 @@ export default class BardFile {
       state: "pending",
       percent: 0,
       file: file,
+    })
+  }
+
+  static fromSignedId(signedId) {
+    return get(`/rails/active_storage/blobs/info/${signedId}`).then(blob => {
+      return BardFile.fromProperties({
+        name: blob.filename,
+        mimetype: blob.content_type,
+        size: blob.byte_size,
+        signedId: signedId,
+      })
     })
   }
 

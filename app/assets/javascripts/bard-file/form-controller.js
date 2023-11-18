@@ -50,10 +50,12 @@ export default class FormController {
 
   uploadFiles(bardFileInput) {
     Array.from(bardFileInput.files).forEach(bardFile => {
-      const controller = new MyDirectUploadController(bardFileInput.fileTarget, bardFile)
-      controller.bardFileInput = bardFileInput
-      this.controllers.push(controller)
-      this.startNextController()
+      if(bardFile.state === "pending") {
+        const controller = new MyDirectUploadController(bardFileInput.fileTarget, bardFile)
+        controller.bardFileInput = bardFileInput
+        this.controllers.push(controller)
+        this.startNextController()
+      }
     })
   }
 

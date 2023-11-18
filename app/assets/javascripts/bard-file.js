@@ -5,25 +5,6 @@ import BardFile from "bard-file/file"
 import FormController from "bard-file/form-controller"
 import DragAndDrop from "bard-file/drag-and-drop"
 import Validations from "bard-file/validations"
-//import { get } from "rails-request-json"
-
-import { FetchRequest } from '@rails/request.js'
-
-const request = (verb, url, payload) => {
-  const req = new FetchRequest(verb, url, {
-    headers: { Accept: "application/json" },
-    body: payload,
-  })
-  return req.perform().then(response => {
-    // FIXME doesn't deal with 304s. push upstream?
-    // if(response.response.headers.get('Content-Length') > 0) {
-    if(response.response.ok) {
-      return response.json
-    }
-  })
-}
-
-const get = (url, payload) => request('get', url, payload)
 
 class BardFileField extends LitElement {
   static styles = styles
@@ -75,29 +56,49 @@ class BardFileField extends LitElement {
   }
 
   textTargetChanged(event) {
-    const signedId = event.target.value
-    if(signedId.length > 0) {
-      get(`/rails/active_storage/blobs/info/${signedId}`).then(blob => {
-        this.files = [
-          BardFile.fromProperties({
-            name: blob.filename,
-            mimetype: blob.content_type,
-            size: blob.byte_size,
-          })
-        ]
-        this.dispatchEvent(new Event("change"))
-      })
+    this.files = []
+    this.append(event.target.value)
+  }
+
+  append(value) {
+    const signedIds = this.signedIdsFromValue(value)
+    const promises = signedIds.map(signedId => BardFile.fromSignedId(signedId))
+    Promise.all(promises).then(bardFiles => {
+      this.assignFiles(bardFiles)
+      this.writeSignedIds()
+      this.requestUpdate()
+      this.dispatchEvent(new Event("change"))
+    })
+  }
+
+  signedIdsFromValue(value) {
+    let signedIds = []
+    if(typeof value == "string" && value.length > 0) {
+      signedIds = value.split(",")
     }
+    if(Array.isArray(value)) {
+      signedIds = value
+    }
+    return signedIds
   }
 
   fileTargetChanged(event) {
-    this.files = Array.from(this.fileTarget.files).map(f => BardFile.fromFile(f))
+    const newFiles = Array.from(this.fileTarget.files).map(f => BardFile.fromFile(f))
+    this.fileTarget.value = null
+    this.assignFiles(newFiles)
     if(this.checkValidity()) {
       this.formController.uploadFiles(this)
     } else {
       this.files = []
       this.textTarget.value = null
-      this.fileTarget.value = null
+    }
+  }
+
+  assignFiles(bardFiles) {
+    if(this.multiple) {
+      this.files.push(...bardFiles)
+    } else {
+      this.files = bardFiles.slice(-1)
     }
   }
 
@@ -145,9 +146,8 @@ class BardFileField extends LitElement {
 
   removeFile(index) {
     this.files.splice(index, 1)
-    this.textTarget.value = null
-    this.fileTarget.value = null
-    this.fileTarget.dispatchEvent(new Event("change"))
+    this.requestUpdate()
+    this.writeSignedIds()
   }
 
   firstUpdated() { // Light DOM
