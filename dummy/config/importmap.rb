@@ -18,7 +18,7 @@ pin "@lit/reactive-element", to: "https://ga.jspm.io/npm:@lit/reactive-element@2
 pin "lit-element/lit-element.js", to: "https://ga.jspm.io/npm:lit-element@4.0.0/lit-element.js"
 pin "lit-html", to: "https://ga.jspm.io/npm:lit-html@3.0.0/lit-html.js"
 pin "lit-html/is-server.js", to: "https://ga.jspm.io/npm:lit-html@3.0.0/is-server.js"
-pin "mime", to: "https://cdn.skypack.dev/mime/lite"
+pin "mime", to: "https://ga.jspm.io/npm:mime-lite@1.0.3/src/index.js"
 
 pin "form-persistence", to: "https://cdn.jsdelivr.net/npm/form-persistence@2.0.6/form-persistence.js/+esm"
 
