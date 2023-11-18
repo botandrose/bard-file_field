@@ -59,7 +59,7 @@ class BardFileField extends LitElement {
   textTargetChanged(event) {
     const signedId = event.target.value
     if(signedId.length > 0) {
-      get(`/previews/${signedId}`).then(blob => {
+      get(`/rails/active_storage/blobs/info/${signedId}`).then(blob => {
         this.files = [
           BardFile.fromProperties({
             name: blob.filename,
