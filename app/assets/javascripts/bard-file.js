@@ -206,8 +206,10 @@ class BardFileField extends LitElement {
   }
 
   writeSignedIds() {
+    this.textTarget.value = null
+    Array.from(this.querySelectorAll("input[type=hidden]")).forEach(e => e.parentNode.removeChild(e))
+
     this.files.forEach((bardFile, index) => {
-      Array.from(this.querySelectorAll("input[type=hidden]")).forEach(e => e.parentNode.removeChild(e))
       if(index === 0) {
         this.textTarget.value = bardFile.signedId
       } else {
