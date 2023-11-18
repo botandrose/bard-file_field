@@ -10,7 +10,7 @@ export default css`
     box-sizing: border-box;
     position: relative;
   }
-  img{
+  img, video{
     max-width: 100%;
   }
   .drag-media-input{
@@ -187,6 +187,10 @@ export default css`
 
   input[type=file][data-direct-upload-url][disabled]{
     display: none;
+  }
+
+  .video-preview *{
+    max-width: 100%;
   }
 
 `
