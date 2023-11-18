@@ -1,5 +1,9 @@
 Given "I am on the homepage" do
-  visit '/'
+  visit "/"
+end
+
+Given "I am on {string}" do |path|
+  visit path
 end
 
 When "I fill in {string} with {string}" do |field, value|
@@ -67,3 +71,6 @@ Then "the {string} bard-file should have a validation error containing {string}"
   end
 end
 
+Then "debugger" do
+  debugger
+end

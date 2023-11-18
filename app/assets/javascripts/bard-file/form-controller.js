@@ -1,21 +1,21 @@
 import { DirectUploadController } from "@rails/activestorage"
 
 class MyDirectUploadController extends DirectUploadController {
-  constructor(input, file) {
-    super(input, file.file)
-    this.file = file
+  constructor(input, bardFile) {
+    super(input, bardFile.file)
+    this.bardFile = bardFile
   }
 
   start(callback) {
     this.dispatch("start")
     this.directUpload.create(((error, attributes) => {
       if (error) {
-        this.bardFile.textTarget.value = null
+        this.bardFileInput.textTarget.value = null
         this.dispatchError(error)
       } else {
-        this.file.signedId = attributes.signed_id
+        this.bardFile.signedId = attributes.signed_id
       }
-      this.bardFile.writeSignedIds()
+      this.bardFileInput.writeSignedIds()
       this.dispatch("end")
       callback(error)
     }))
@@ -48,10 +48,10 @@ export default class FormController {
     }
   }
 
-  uploadFiles(bardFile) {
-    Array.from(bardFile.files).forEach(file => {
-      const controller = new MyDirectUploadController(bardFile.fileTarget, file)
-      controller.bardFile = bardFile
+  uploadFiles(bardFileInput) {
+    Array.from(bardFileInput.files).forEach(bardFile => {
+      const controller = new MyDirectUploadController(bardFileInput.fileTarget, bardFile)
+      controller.bardFileInput = bardFileInput
       this.controllers.push(controller)
       this.startNextController()
     })

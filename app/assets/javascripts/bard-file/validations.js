@@ -33,7 +33,7 @@ class Accepts {
       return regex
     }).filter(r => !!r) // discard not found
 
-    if(!regexes.some(regex => regex.test(file.mimetype))) {
+    if(regexes.length > 0 && !regexes.some(regex => regex.test(file.mimetype))) {
       this.errors.push(`${label} must be a ${this.joinWords(accepts)}.`)
     }
   }

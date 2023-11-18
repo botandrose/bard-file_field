@@ -1,4 +1,4 @@
-Feature: <bard-file> is an improved file input with extra features
+Feature: form.bard_file_field is an improved form.file_field input with extra features
   Background:
     Given I am on the homepage
 
@@ -17,23 +17,12 @@ Feature: <bard-file> is an improved file input with extra features
     When I attach the file "image.jpg" to "Image"
     Then I should see an upload progress bar at 100% within the "Image" bard-file
 
-  Scenario: It supports file type validation
-    When I attach the file "video.mp4" to "Image"
-    Then the "Image" bard-file should have a validation error containing "Image must be a image."
-    Then I should not see a preview within the "Image" bard-file
-
-    When I press "Submit"
-    Then I should not see "Post created!"
-    And I should not see "video.mp4"
-
-  Scenario: It supports file size validation
-    When I attach the file "video.mp4" to "Image"
-    Then the "Image" bard-file should have a validation error containing "Image must be smaller than 100KB, and \"video.mp4\" is 119.59KB. Please attach a smaller file."
-    Then I should not see a preview within the "Image" bard-file
-
-    When I press "Submit"
-    Then I should not see "Post created!"
-    And I should not see "video.mp4"
+  Scenario: It can display an existing file
+    When I attach the file "image.jpg" to "Image"
+    And I press "Submit"
+    Then I should see "Post created!"
+    When I follow "Edit"
+    Then I should see a preview of "image.jpg" within the "Image" bard-file
 
   Scenario: It supports naive serialization and resumption with the form-persistence npm package
     When I fill in "Name" with "Jerry"

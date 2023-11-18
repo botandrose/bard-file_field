@@ -159,27 +159,6 @@ class BardFileField extends LitElement {
 
     this.fileTarget = this.firstElementChild
     this.textTarget = this.lastElementChild
-
-
-    // override textTarget.value= setter to fire change event to catch mutation via form-persistence NPM package
-    var descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")
-    var inputSetter = descriptor.set
-
-    //Then modify the "setter" of the value to notify when the value is changed:
-    descriptor.set = function(val) {
-      // changing to native setter to prevent the loop while setting the value
-      Object.defineProperty(this, "value", { set: inputSetter })
-      this.value = val
-
-      // Custom code triggered when $input.value is set
-      this.dispatchEvent(new Event("change"))
-
-      //changing back to custom setter
-      Object.defineProperty(this, "value", descriptor)
-    }
-
-    //Last add the new "value" descriptor to the input element
-    Object.defineProperty(this.textTarget, "value", descriptor);
   }
 
   render() { // Shadow DOM
@@ -208,18 +187,14 @@ class BardFileField extends LitElement {
   }
 
   writeSignedIds() {
-    this.files.forEach((file, index) => {
+    this.files.forEach((bardFile, index) => {
       Array.from(this.querySelectorAll("input[type=hidden]")).forEach(e => e.parentNode.removeChild(e))
       if(index === 0) {
-        // don't use .value= setter because its modified to trigger change event
-        // this.textTarget.value = file.signedId
-        this.textTarget.setAttribute("value", file.signedId)
+        this.textTarget.value = bardFile.signedId
       } else {
-        const hiddenInput = document.createElement("input")
-        hiddenInput.type = "hidden"
-        hiddenInput.name = this.name
-        hiddenInput.value = file.signedId
-        this.insertAdjacentElement("beforeend", hiddenInput)
+        this.insertAdjacentHTML("beforeend",
+          `<input type="hidden" name="${this.name}" value="${bardFile.signedId}">`
+        )
       }
     })
   }

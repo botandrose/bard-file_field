@@ -1,0 +1,17 @@
+<h1>File With Max Size</h1>
+<%= form_with model: @post, url: request.fullpath, method: :patch do |form| %>
+  <p>
+    <%= form.label :file, "File" %>
+    <%= form.bard_file_field :file, max: 100.kilobytes %>
+  </p>
+
+  <p><%= form.submit "Submit" %></p>
+
+  <div class="direct-upload-wrapper">
+    <div class="direct-upload-content">
+      <h3>Uploading your media</h3>
+      <div id="progress-container"></div>
+    </div>
+  </div>
+<% end %>
+

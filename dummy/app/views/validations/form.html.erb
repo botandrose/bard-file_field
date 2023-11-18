@@ -1,0 +1,26 @@
+<%= form_for @post do |form| %>
+  <p>
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </p>
+
+  <p>
+    <%= form.label :image %>
+    <%= form.bard_file_field :image, accepts: "image", max: 100.kilobytes %>
+  </p>
+
+  <p>
+    <%= form.label :images %>
+    <%= form.bard_file_field :images, multiple: true, accepts: "image" %>
+  </p>
+
+  <p><%= form.submit "Submit" %></p>
+
+  <div class="direct-upload-wrapper">
+    <div class="direct-upload-content">
+      <h3>Uploading your media</h3>
+      <div id="progress-container"></div>
+    </div>
+  </div>
+<% end %>
+
