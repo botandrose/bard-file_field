@@ -13,7 +13,7 @@ module Bard
             bard-file/css.js
             bard-file/file.js
             bard-file/form-controller.js
-            bard-file/is-constructor.js
+            bard-file/drag-and-drop.js
             bard-file/validations.js
           ]
         end

@@ -2,8 +2,8 @@ import { html, css, LitElement } from 'lit'
 import { render } from "lit-html"
 import styles from "bard-file/css"
 import BardFile from "bard-file/file"
-import isConstructor from "bard-file/is-constructor"
 import FormController from "bard-file/form-controller"
+import DragAndDrop from "bard-file/drag-and-drop"
 import Validations from "bard-file/validations"
 import { get } from "rails-request-json"
 
@@ -80,39 +80,6 @@ class BardFileField extends LitElement {
       this.textTarget.value = null
       this.fileTarget.value = null
     }
-  }
-
-  drop(event) {
-    this.unhighlight(event)
-
-    const droppedFiles = event.dataTransfer.files
-
-    if(isConstructor(DataTransfer)) { // Modern browsers can use this trick to append files
-      const list = new DataTransfer()
-      Array.from(this.fileTarget.files).forEach(file => list.items.add(file))
-      Array.from(droppedFiles).forEach(file => list.items.add(file))
-      this.fileTarget.files = list.files
-    } else {
-      // Safari can't append files, so just replace
-      this.fileTarget.files = droppedFiles
-    }
-
-    this.fileTarget.dispatchEvent(new Event("change"))
-  }
-
-  highlight(event) {
-    this.halt(event)
-    this.highlighted = true
-  }
-
-  unhighlight(event) {
-    this.halt(event)
-    this.highlighted = false
-  }
-
-  halt(event) {
-    event.preventDefault()
-    event.stopPropagation()
   }
 
   init(event) {
@@ -258,6 +225,9 @@ class BardFileField extends LitElement {
   }
 }
 
-Object.assign(BardFileField.prototype, Validations)
+Object.assign(BardFileField.prototype,
+  Validations,
+  DragAndDrop,
+)
 
 customElements.define("bard-file", BardFileField)
