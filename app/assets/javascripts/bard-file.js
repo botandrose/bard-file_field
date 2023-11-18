@@ -65,9 +65,6 @@ class BardFileField extends LitElement {
     const promises = signedIds.map(signedId => BardFile.fromSignedId(signedId))
     Promise.all(promises).then(bardFiles => {
       this.assignFiles(bardFiles)
-      this.writeSignedIds()
-      this.requestUpdate()
-      this.dispatchEvent(new Event("change"))
     })
   }
 
@@ -100,6 +97,9 @@ class BardFileField extends LitElement {
     } else {
       this.files = bardFiles.slice(-1)
     }
+    this.writeSignedIds()
+    this.requestUpdate()
+    this.dispatchEvent(new Event("change"))
   }
 
   init(event) {
