@@ -46,7 +46,7 @@ export default class BardFile {
           <div class="direct-upload__progress" style="width: ${this.percent}%"></div>
           <span class="direct-upload__filename">${this.name}</span>
         </div>
-        <a class="remove-media" @click="${{ handleEvent: e => { removeCallback(); e.stopPropagation() } }}" href="#">
+        <a class="remove-media" @click="${{ handleEvent: e => { e.stopPropagation(); e.preventDefault(); removeCallback(); } }}" href="#">
           <span>Remove media</span>
         </a>
         <p>${media}</p>
