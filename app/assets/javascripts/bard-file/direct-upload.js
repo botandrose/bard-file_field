@@ -1,7 +1,7 @@
 const DirectUpload = {
   init: function(event) {
     const { id, file } = event.detail
-    const bardFile = this.files[0] // FIXME
+    const bardFile = this.files.find(bf => bf.file === file)
     bardFile.state = "pending"
     bardFile.percent = 0
     this.requestUpdate()
@@ -9,15 +9,16 @@ const DirectUpload = {
   },
 
   start: function(event) {
-    const bardFile = this.files[0] // FIXME
+    const { id, file } = event.detail
+    const bardFile = this.files.find(bf => bf.file === file)
     bardFile.state = "pending"
     this.requestUpdate()
     this.formController.start(event)
   },
 
   progress: function(event) {
-    const { id, progress } = event.detail
-    const bardFile = this.files[0] // FIXME
+    const { id, file, progress } = event.detail
+    const bardFile = this.files.find(bf => bf.file === file)
     bardFile.percent = progress
     this.requestUpdate()
     this.formController.progress(event)
@@ -25,8 +26,8 @@ const DirectUpload = {
 
   error: function(event) {
     event.preventDefault()
-    const { id, error } = event.detail
-    const bardFile = this.files[0] // FIXME
+    const { id, file, error } = event.detail
+    const bardFile = this.files.find(bf => bf.file === file)
     bardFile.state = "error"
     bardFile.error = error
     this.requestUpdate()
@@ -34,7 +35,8 @@ const DirectUpload = {
   },
 
   end: function(event) {
-    const bardFile = this.files[0] // FIXME
+    const { id, file } = event.detail
+    const bardFile = this.files.find(bf => bf.file === file)
     bardFile.state = "complete"
     bardFile.percent = 100
     this.requestUpdate()
