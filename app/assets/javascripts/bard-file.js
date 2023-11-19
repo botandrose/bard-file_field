@@ -1,7 +1,6 @@
 import { LitElement } from "lit"
 import styles from "bard-file/css"
 import BardFile from "bard-file/file"
-import FormController from "bard-file/form-controller"
 import DirectUpload from "bard-file/direct-upload"
 import DragAndDrop from "bard-file/drag-and-drop"
 import Validations from "bard-file/validations"
@@ -39,7 +38,6 @@ class BardFileField extends LitElement {
 
   connectedCallback() {
     super.connectedCallback()
-    this.formController = FormController.forForm(this.closest("form"))
 
     if(this.previewsrc) {
       this.files = [

@@ -1,13 +1,13 @@
 import { html } from "lit"
 import { render } from "lit-html"
+import FormController from "bard-file/form-controller"
 
 const Rendering = {
   firstUpdated: function() { // Light DOM
     render(html`
-      <input
+      <input type="file"
         style="opacity: 0.01; position: absolute; z-index: -999"
         id="${this.originalId}"
-        type="file"
         .multiple="${this.multiple}"
         data-direct-upload-url="${this.directupload}"
 
@@ -19,22 +19,33 @@ const Rendering = {
 
         @change="${this.fileTargetChanged}"
       >
-      <input
+      <dialog>
+        <div class="direct-upload-wrapper">
+          <div class="direct-upload-content">
+            <h3>Uploading your media</h3>
+            <div id="progress-container"></div>
+          </div>
+        </div>
+      </dialog>
+      <input type="text"
         style="opacity: 0.01; position: absolute; z-index: -999"
         .required="${this.required}"
         name="${this.name}"
-        type="text"
         @change="${this.textTargetChanged}"
       >
     `, this, { host: this })
 
     this.fileTarget = this.firstElementChild
+    this.dialogTarget = this.querySelector("dialog")
     this.textTarget = this.lastElementChild
+
+    this.formController = FormController.forForm(this.closest("form"), this.dialogTarget)
   },
 
   render: function() { // Shadow DOM
     return html`
       <slot></slot>
+
       <label class="drag-media ${this.class} ${this.highlighted ? "-dragover" : ''}"
         @click="${this.openFilePicker}"
 

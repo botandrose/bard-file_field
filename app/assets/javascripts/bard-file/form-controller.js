@@ -23,22 +23,22 @@ class MyDirectUploadController extends DirectUploadController {
 }
 
 export default class FormController {
-  static forForm(form) {
-    return form.bardFileFormController ||= new FormController(form)
+  static forForm(form, dialog) {
+    return form.bardFileFormController ||= new FormController(form, dialog)
   }
 
-  constructor(form) {
+  constructor(form, dialog) {
     this.element = form
+    this.dialog = dialog
     this.progressTargetMap = {}
     this.controllers = []
     this.processing = false
     this.errors = false
 
+    this.progressContainerTarget = this.dialog.querySelector("#progress-container")
+
     this.element.addEventListener("submit", event => this.submit(event))
-
     window.addEventListener("beforeunload", event => this.beforeUnload(event))
-
-    this.progressContainerTarget = document.querySelector("#progress-container")
   }
 
   beforeUnload(event) {
@@ -64,7 +64,7 @@ export default class FormController {
     this.submitted = true
     this.startNextController()
     if(this.processing) {
-      this.progressContainerTarget.style.display = null
+      this.dialog.showModal()
     }
   }
 
@@ -132,5 +132,4 @@ export default class FormController {
     this.progressTargetMap[event.detail.id].classList.add("direct-upload--complete")
   }
 }
-
 
