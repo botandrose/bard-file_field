@@ -13,8 +13,10 @@ module Bard
             bard-file/css.js
             bard-file/file.js
             bard-file/form-controller.js
+            bard-file/direct-upload.js
             bard-file/drag-and-drop.js
             bard-file/validations.js
+            bard-file/rendering.js
           ]
         end
       end
