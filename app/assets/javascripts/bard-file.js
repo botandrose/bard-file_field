@@ -57,6 +57,14 @@ class BardFileField extends LitElement {
     this.append(event.target.value)
   }
 
+  append(value) {
+    const signedIds = this.signedIdsFromValue(value)
+    const promises = signedIds.map(signedId => BardFile.fromSignedId(signedId))
+    Promise.all(promises).then(bardFiles => {
+      this.assignFiles(bardFiles)
+    })
+  }
+
   fileTargetChanged(event) {
     const newFiles = Array.from(this.fileTarget.files).map(f => BardFile.fromFile(f))
     this.fileTarget.value = null
@@ -67,18 +75,6 @@ class BardFileField extends LitElement {
       this.files = []
       this.textTarget.value = null
     }
-  }
-
-  openFilePicker() {
-    this.fileTarget.click()
-  }
-
-  append(value) {
-    const signedIds = this.signedIdsFromValue(value)
-    const promises = signedIds.map(signedId => BardFile.fromSignedId(signedId))
-    Promise.all(promises).then(bardFiles => {
-      this.assignFiles(bardFiles)
-    })
   }
 
   signedIdsFromValue(value) {
@@ -98,8 +94,8 @@ class BardFileField extends LitElement {
     } else {
       this.files = bardFiles.slice(-1)
     }
-    this.writeSignedIds()
     this.requestUpdate()
+    this.writeSignedIds()
     this.dispatchEvent(new Event("change"))
   }
 
@@ -107,6 +103,10 @@ class BardFileField extends LitElement {
     this.files.splice(index, 1)
     this.requestUpdate()
     this.writeSignedIds()
+  }
+
+  openFilePicker() {
+    this.fileTarget.click()
   }
 }
 
