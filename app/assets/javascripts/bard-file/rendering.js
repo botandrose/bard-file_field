@@ -1,6 +1,7 @@
 import { html } from "lit"
 import { render } from "lit-html"
 import FormController from "bard-file/form-controller"
+import DragAndDrop from "bard-file/drag-and-drop"
 
 const Rendering = {
   firstUpdated: function() { // Light DOM
@@ -46,17 +47,7 @@ const Rendering = {
     return html`
       <slot></slot>
 
-      <label class="drag-media ${this.class} ${this.highlighted ? "-dragover" : ''}"
-        @click="${this.openFilePicker}"
-
-        @drag="${this.halt}"
-        @dragstart="${this.halt}"
-        @dragover="${this.highlight}"
-        @dragenter="${this.highlight}"
-        @dragleave="${this.unhighlight}"
-        @dragend="${this.unhighlight}"
-        @drop="${this.drop}"
-      >
+      <drag-and-drop target="${this.originalId}">
         <i class="drag-icon"></i>
         <strong>Choose ${this.multiple ? "files" : "file"} </strong>
         <span>or drag ${this.multiple ? "them" : "it"} here.</span>
@@ -64,7 +55,7 @@ const Rendering = {
         <div class="media-preview ${this.multiple ? "-stacked" : ''}">
           ${this.files.map((file, index) => file.render(() => this.removeFile(index)))}
         </div>
-      </label>
+      </drag-and-drop>
     `;
   },
 

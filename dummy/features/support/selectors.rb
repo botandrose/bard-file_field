@@ -15,7 +15,7 @@ module WithinHelpers
       page.document.synchronize errors: [Ferrum::JavaScriptError] do
         shadow_root.has_css?("*")
       end
-      shadow_root.first("label")
+      shadow_root.find(".media-preview")
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:

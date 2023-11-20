@@ -13,17 +13,7 @@ export default css`
   img, video{
     max-width: 100%;
   }
-  .drag-media-input{
-    position: absolute;
-    opacity: 0.001;
-    width: 100%;
-    height: 100%;
-    max-width: 100% !important;
-    overflow: hidden;
-    top: 0;
-    left: 0;
-  }
-  .drag-media{
+  drag-and-drop{
     display: block;
     padding: 40px;
     outline-offset: -10px;
@@ -35,23 +25,11 @@ export default css`
     color: #444;
     font-size: 14px;
   }
-  .drag-media.-full{
+  drag-and-drop * {
+    pointer-events: none;
+  }
+  drag-and-drop.-full{
     width: 100%;
-  }
-  .drag-media ul{
-    text-align: left;
-    font-style: normal;
-    font-size: 0.8em;
-    list-style: outside circle;
-    margin-bottom: 0;
-    position: absolute;
-    z-index: -1;
-    top: 0px;
-    left: 25px;
-  }
-  .drag-media ul li{
-    margin: 0;
-    line-height: 20px;
   }
   .-dragover{
     background: rgba(255,255,255,0.5);

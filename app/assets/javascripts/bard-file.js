@@ -2,7 +2,6 @@ import { LitElement } from "lit"
 import styles from "bard-file/css"
 import BardFile from "bard-file/file"
 import DirectUpload from "bard-file/direct-upload"
-import DragAndDrop from "bard-file/drag-and-drop"
 import Validations from "bard-file/validations"
 import Rendering from "bard-file/rendering"
 
@@ -23,15 +22,12 @@ class BardFileField extends LitElement {
     max: { type: Number },
 
     files: { state: true },
-    highlighted: { state: true },
   }
 
   constructor() {
     super()
 
     this.files = []
-    this.highlighted = false
-
     this.originalId = this.id
     this.removeAttribute("id")
   }
@@ -102,15 +98,10 @@ class BardFileField extends LitElement {
     this.requestUpdate()
     this.writeSignedIds()
   }
-
-  openFilePicker() {
-    this.fileTarget.click()
-  }
 }
 
 Object.assign(BardFileField.prototype,
   Validations,
-  DragAndDrop,
   DirectUpload,
   Rendering,
 )
