@@ -5,7 +5,7 @@ import DirectUpload from "bard-file/direct-upload"
 import Validations from "bard-file/validations"
 import Rendering from "bard-file/rendering"
 
-class BardFileField extends LitElement {
+class BardFileField extends DirectUpload(LitElement) {
   static styles = styles
 
   static properties = {
@@ -102,7 +102,6 @@ class BardFileField extends LitElement {
 
 Object.assign(BardFileField.prototype,
   Validations,
-  DirectUpload,
   Rendering,
 )
 

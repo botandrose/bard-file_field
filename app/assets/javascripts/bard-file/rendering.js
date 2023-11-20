@@ -11,13 +11,6 @@ const Rendering = {
         id="${this.originalId}"
         .multiple="${this.multiple}"
         data-direct-upload-url="${this.directupload}"
-
-        @direct-upload:initialize="${this.init}"
-        @direct-upload:start="${this.start}"
-        @direct-upload:progress="${this.progress}"
-        @direct-upload:error="${this.error}"
-        @direct-upload:end="${this.end}"
-
         @change="${this.fileTargetChanged}"
       >
       <dialog>
