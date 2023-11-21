@@ -25,9 +25,6 @@ export default css`
     color: #444;
     font-size: 14px;
   }
-  drag-and-drop * {
-    pointer-events: none;
-  }
   drag-and-drop.-full{
     width: 100%;
   }
