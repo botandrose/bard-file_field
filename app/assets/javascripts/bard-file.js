@@ -97,6 +97,7 @@ class BardFileField extends DirectUpload(LitElement) {
     this.files.splice(index, 1)
     this.requestUpdate()
     this.writeSignedIds()
+    this.dispatchEvent(new Event("change"))
   }
 }
 
