@@ -8,7 +8,7 @@ module WithinHelpers
   def selector_for(locator)
     case locator
 
-    when /the "(.+)" bard-file/
+    when /the "(.+)" bard-file shadow root/
       field = find_field($1)
       bard_file = field.find(:xpath, "..")
       shadow_root = bard_file.shadow_root
@@ -16,6 +16,13 @@ module WithinHelpers
         shadow_root.has_css?("*")
       end
       shadow_root.find(".media-preview")
+
+    when /the "(.+)" bard-file/
+      field = find_field($1)
+      bard_file = field.find(:xpath, "..")
+
+    when /the "(.+)" uploaded-file/
+      find("uploaded-file[filename='#{$1}']").shadow_root.find("figure")
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:

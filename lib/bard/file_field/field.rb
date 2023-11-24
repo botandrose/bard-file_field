@@ -6,14 +6,16 @@ module Bard
         options["directupload"] = "/rails/active_storage/direct_uploads"
         add_default_name_and_id(options)
 
-        attachment = object.try(@method_name)
-        if attachment&.attached?
-          options["previewsrc"] = @template_object.url_for(attachment)
-          options["previewfilename"] = attachment.filename
-          options["previewmimetype"] = attachment.content_type
+        content_tag("bard-file", options) do
+          attachment = object.try(@method_name)
+          if attachment&.attached?
+            tag("uploaded-file", {
+              src: @template_object.url_for(attachment),
+              filename: attachment.filename,
+              previewmimetype: attachment.content_type,
+            })
+          end
         end
-
-        tag("bard-file", options)
       end
     end
   end

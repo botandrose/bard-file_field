@@ -48,9 +48,7 @@ Then "I should not see the {string} image" do |filename|
 end
 
 Then "I should see a preview of {string}" do |filename|
-  figure = find("figure")
-  expect(figure).to have_content(filename)
-  expect(figure).to have_css("img")
+  expect(find("uploaded-file")[:filename]).to eq(filename)
 end
 
 Then "I should not see a preview" do

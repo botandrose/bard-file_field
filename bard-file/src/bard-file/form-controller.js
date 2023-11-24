@@ -13,9 +13,8 @@ class MyDirectUploadController extends DirectUploadController {
         this.bardFileInput.textTarget.value = null
         this.dispatchError(error)
       } else {
-        this.bardFile.signedId = attributes.signed_id
+        this.bardFile.value = attributes.signed_id
       }
-      this.bardFileInput.writeSignedIds()
       this.dispatch("end")
       callback(error)
     }))

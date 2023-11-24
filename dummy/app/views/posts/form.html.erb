@@ -20,6 +20,20 @@
 <script type="module">
   import FormPersistence from "form-persistence"
   const form = document.querySelector("form")
-  FormPersistence.persist(form)
+  FormPersistence.persist(form, {
+    beforeDeserialize: (form, data) => {
+      [...form.querySelectorAll("bard-file")].forEach(bardFile => {
+        bardFile.value = data[bardFile.name]
+        delete data[bardFile.name]
+      })
+      return data
+    },
+    afterSerialize: (form, data) => {
+      [...form.querySelectorAll("bard-file")].forEach(bardFile => {
+        data[bardFile.name] = bardFile.value
+      })
+      return data
+    },
+  })
 </script>
 

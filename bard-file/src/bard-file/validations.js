@@ -70,7 +70,7 @@ class Max {
   get errorMessage() {
     return [
       `${this.label} must be smaller than ${this.formatBytes(this.max)},`,
-      `and "${this.file.name}" is ${this.formatBytes(this.file.size)}.`,
+      `and "${this.file.filename}" is ${this.formatBytes(this.file.size)}.`,
       `Please attach a smaller file.`,
     ].join(" ")
   }

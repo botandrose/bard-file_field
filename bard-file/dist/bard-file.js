@@ -5,7 +5,7 @@ import { DirectUploadController } from '@rails/activestorage';
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const t$1=globalThis,e$2=t$1.ShadowRoot&&(void 0===t$1.ShadyCSS||t$1.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s$2=Symbol(),o$2=new WeakMap;class n$2{constructor(t,e,o){if(this._$cssResult$=!0,o!==s$2)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$2&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$2.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$2.set(s,t));}return t}toString(){return this.cssText}}const r$3=t=>new n$2("string"==typeof t?t:t+"",void 0,s$2),i$2=(t,...e)=>{const o=1===t.length?t[0]:e.reduce(((e,s,o)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+t[o+1]),t[0]);return new n$2(o,t,s$2)},S$1=(s,o)=>{if(e$2)s.adoptedStyleSheets=o.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet));else for(const e of o){const o=document.createElement("style"),n=t$1.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$2=e$2?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$3(e)})(t):t;
+const t$1=globalThis,e$2=t$1.ShadowRoot&&(void 0===t$1.ShadyCSS||t$1.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s$2=Symbol(),o$2=new WeakMap;let n$2 = class n{constructor(t,e,o){if(this._$cssResult$=!0,o!==s$2)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$2&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$2.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$2.set(s,t));}return t}toString(){return this.cssText}};const r$3=t=>new n$2("string"==typeof t?t:t+"",void 0,s$2),i$2=(t,...e)=>{const o=1===t.length?t[0]:e.reduce(((e,s,o)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+t[o+1]),t[0]);return new n$2(o,t,s$2)},S$1=(s,o)=>{if(e$2)s.adoptedStyleSheets=o.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet));else for(const e of o){const o=document.createElement("style"),n=t$1.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$2=e$2?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$3(e)})(t):t;
 
 /**
  * @license
@@ -26,7 +26,7 @@ const t=globalThis,i=t.trustedTypes,s$1=i?i.createPolicy("lit-html",{createHTML:
  * SPDX-License-Identifier: BSD-3-Clause
  */class s extends b{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=j(i,this.renderRoot,this.renderOptions);}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0);}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1);}render(){return w}}s._$litElement$=!0,s[("finalized")]=!0,globalThis.litElementHydrateSupport?.({LitElement:s});const r=globalThis.litElementPolyfillSupport;r?.({LitElement:s});(globalThis.litElementVersions??=[]).push("4.0.2");
 
-var styles = i$2`
+var styles$1 = i$2`
   :host {
     display: block;
     padding: 25px;
@@ -35,9 +35,6 @@ var styles = i$2`
   :host *{
     box-sizing: border-box;
     position: relative;
-  }
-  img, video{
-    max-width: 100%;
   }
   drag-and-drop{
     display: block;
@@ -79,7 +76,86 @@ var styles = i$2`
     justify-content: center;
     margin-top: 10px;
   }
-  .media-preview figure{
+
+  // UPLOADER
+
+  .direct-upload-wrapper{
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(#333, 0.9);
+  }
+
+  .direct-upload-content{
+    display: block;
+    background: #fcfcfc;
+    padding: 40px 60px 60px;
+    border-radius: 3px;
+    width: 60vw;
+  }
+  .direct-upload-content h3{
+    border-bottom: 2px solid #1f1f1f;
+    margin-bottom: 20px;
+  }
+
+  .direct-upload{
+    display: block;
+    position: relative;
+    padding: 0 20px;
+    margin: 0 0px 10px 0;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    font-size: 18px;
+    line-height: 2;
+    flex: 0 0 calc(100% - 30px);
+    text-align: left;
+  }
+  .direct-upload.separate-upload{
+    padding: 0 10px;
+    margin-top: 10px;
+    font-size: 0.9em;
+  }
+
+  .direct-upload--pending{
+    opacity: 0.6;
+  }
+
+  .direct-upload__progress{
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    opacity: 0.2;
+    background: #398927;
+    transition: width 120ms ease-out, opacity 60ms 60ms ease-in;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .direct-upload--complete .direct-upload__progress{
+    opacity: 0.4;
+  }
+
+  .direct-upload--error{
+    border-color: red;
+  }
+
+  input[type=file][data-direct-upload-url][disabled]{
+    display: none;
+  }
+
+`;
+
+var styles = i$2`
+  img, video{
+    max-width: 100%;
+  }
+  figure{
     flex: 1 0 100%;
     margin: 0 1px;
     text-align: center;
@@ -88,7 +164,7 @@ var styles = i$2`
     flex-wrap: wrap;
   }
 
-  .media-preview figure > *:nth-last-child(1){
+  figure > *:nth-last-child(1){
     flex: 1 0 100%;
   }
 
@@ -184,10 +260,6 @@ var styles = i$2`
 
   .direct-upload--error{
     border-color: red;
-  }
-
-  input[type=file][data-direct-upload-url][disabled]{
-    display: none;
   }
 
   .video-preview *{
@@ -582,24 +654,37 @@ class FetchRequest {
   }
 }
 
-const request = (verb, url, payload) => {
-  const req = new FetchRequest(verb, url, {
+async function get(url, payload) {
+  const request = new FetchRequest("get", url, {
     headers: { Accept: "application/json" },
     body: payload,
   });
-  return req.perform().then(response => {
-    // FIXME doesn't deal with 304s. push upstream?
-    // if(response.response.headers.get('Content-Length') > 0) {
-    if(response.response.ok) {
-      return response.json
-    }
-  })
-};
-const get = (url, payload) => request('get', url, payload);
+  const response = await request.perform();
+  // FIXME doesn't deal with 304s. push upstream?
+  if(response.response.ok) {
+    return response.json
+  }
+}
 
-class BardFile {
+class UploadedFile extends s {
+  static styles = styles
+
+  static properties = {
+    name: { type: String, reflect: true },
+    value: { type: String, reflect: true },
+    filename: { type: String, reflect: true },
+    src: { type: String, reflect: true },
+    mimetype: { type: String, reflect: true },
+    size: { type: Number, reflect: true },
+
+    state: { state: true },
+    percent: { state: true },
+    file: { state: true },
+  }
+
   static fromProperties(props) {
-    return Object.assign(new BardFile(), props, {
+    return Object.assign(new UploadedFile(), {
+      ...props,
       size: 0, // HACK always pass max file check
       state: "complete",
       percent: 100,
@@ -607,11 +692,12 @@ class BardFile {
     })
   }
 
-  static fromFile(file) {
+  static fromFile(file, props={}) {
     const extension = file.name.split(".").at(-1);
-    return Object.assign(new BardFile(), {
+    return Object.assign(new UploadedFile(), {
+      ...props,
       src: URL.createObjectURL(file),
-      name: file.name,
+      filename: file.name,
       mimetype: Mime$1.getType(extension),
       size: file.size,
       state: "pending",
@@ -620,18 +706,19 @@ class BardFile {
     })
   }
 
-  static fromSignedId(signedId) {
+  static fromSignedId(signedId, props={}) {
     return get(`/rails/active_storage/blobs/info/${signedId}`).then(blob => {
-      return BardFile.fromProperties({
-        name: blob.filename,
+      return UploadedFile.fromProperties({
+        ...props,
+        filename: blob.filename,
         mimetype: blob.content_type,
         size: blob.byte_size,
-        signedId: signedId,
+        value: signedId,
       })
     })
   }
 
-  render(removeCallback) {
+  render() {
     let klass, media;
     if(["image/jpeg", "image/png"].includes(this.mimetype)) {
       klass = "image-preview";
@@ -645,19 +732,35 @@ class BardFile {
     }
 
     return x`
+      <slot>
+      </slot>
       <figure class="${klass}">
         <div class="direct-upload separate-upload direct-upload--${this.state}">
           <div class="direct-upload__progress" style="width: ${this.percent}%"></div>
-          <span class="direct-upload__filename">${this.name}</span>
+          <span class="direct-upload__filename">${this.filename}</span>
         </div>
-        <a class="remove-media" @click="${{ handleEvent: e => { e.stopPropagation(); e.preventDefault(); removeCallback(); } }}" href="#">
+        <a class="remove-media" @click=${this.removeSelf} href="#">
           <span>Remove media</span>
         </a>
         <p>${media}</p>
       </figure>
     `
   }
+
+  removeSelf(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.parentNode.removeFile(this);
+  }
+
+  updated(changedProperties) {
+    j(x`
+      <input type="hidden" name="${this.name}" value="${this.value}">
+    `, this, { host: this });
+  }
 }
+
+customElements.define('uploaded-file', UploadedFile);
 
 const DirectUpload = superClass => class extends superClass {
   constructor() {
@@ -787,7 +890,7 @@ class Max {
   get errorMessage() {
     return [
       `${this.label} must be smaller than ${this.formatBytes(this.max)},`,
-      `and "${this.file.name}" is ${this.formatBytes(this.file.size)}.`,
+      `and "${this.file.filename}" is ${this.formatBytes(this.file.size)}.`,
       `Please attach a smaller file.`,
     ].join(" ")
   }
@@ -818,9 +921,8 @@ class MyDirectUploadController extends DirectUploadController {
         this.bardFileInput.textTarget.value = null;
         this.dispatchError(error);
       } else {
-        this.bardFile.signedId = attributes.signed_id;
+        this.bardFile.value = attributes.signed_id;
       }
-      this.bardFileInput.writeSignedIds();
       this.dispatch("end");
       callback(error);
     }));
@@ -986,7 +1088,17 @@ class DragAndDrop extends s {
 customElements.define("drag-and-drop", DragAndDrop);
 
 const Rendering = {
-  firstUpdated: function() { // Light DOM
+  firstUpdated: function() {
+    this.renderLightDOM();
+
+    this.fileTarget = this.querySelector("input[type=file]");
+    this.dialogTarget = this.querySelector("dialog");
+    this.textTarget = this.querySelector("input[type=text]");
+
+    this.formController = FormController.forForm(this.closest("form"), this.dialogTarget);
+  },
+
+  renderLightDOM: function() {
     j(x`
       <input type="file"
         style="opacity: 0.01; position: absolute; z-index: -999"
@@ -995,6 +1107,13 @@ const Rendering = {
         data-direct-upload-url="${this.directupload}"
         @change="${this.fileTargetChanged}"
       >
+      <input type="text"
+        style="opacity: 0.01; position: absolute; z-index: -999"
+        .required="${this.required}"
+        name="${this.name}"
+        @change="${this.textTargetChanged}"
+      >
+      ${this.files}
       <dialog>
         <div class="direct-upload-wrapper">
           <div class="direct-upload-content">
@@ -1003,64 +1122,37 @@ const Rendering = {
           </div>
         </div>
       </dialog>
-      <input type="text"
-        style="opacity: 0.01; position: absolute; z-index: -999"
-        .required="${this.required}"
-        name="${this.name}"
-        @change="${this.textTargetChanged}"
-      >
     `, this, { host: this });
-
-    this.fileTarget = this.firstElementChild;
-    this.dialogTarget = this.querySelector("dialog");
-    this.textTarget = this.lastElementChild;
-
-    this.formController = FormController.forForm(this.closest("form"), this.dialogTarget);
   },
 
   render: function() { // Shadow DOM
-    return x`
-      <slot></slot>
+    this.renderLightDOM();
 
+    return x`
       <drag-and-drop target="${this.originalId}">
         <i class="drag-icon"></i>
         <strong>Choose ${this.multiple ? "files" : "file"} </strong>
         <span>or drag ${this.multiple ? "them" : "it"} here.</span>
 
         <div class="media-preview ${this.multiple ? "-stacked" : ''}">
-          ${this.files.map((file, index) => file.render(() => this.removeFile(index)))}
+          <slot>
+          </slot>
         </div>
       </drag-and-drop>
-    `;
+    `
   },
 
-  writeSignedIds: function() {
-    this.textTarget.value = null;
-    Array.from(this.querySelectorAll("input[type=hidden]")).forEach(e => e.parentNode.removeChild(e));
-
-    this.files.forEach((bardFile, index) => {
-      if(index === 0) {
-        this.textTarget.value = bardFile.signedId;
-      } else {
-        this.insertAdjacentHTML("beforeend",
-          `<input type="hidden" name="${this.name}" value="${bardFile.signedId}">`
-        );
-      }
-    });
+  reloadFilesFromDOM: function(event) {
   },
 };
 
 class BardFileField extends DirectUpload(s) {
-  static styles = styles
+  static styles = styles$1
 
   static properties = {
     name: { type: String },
     directupload: { type: String },
     multiple: { type: Boolean },
-
-    previewsrc: { type: String },
-    previewfilename: { type: String },
-    previewmimetype: { type: String },
 
     required: { type: Boolean },
     accepts: { type: String },
@@ -1077,37 +1169,31 @@ class BardFileField extends DirectUpload(s) {
     this.removeAttribute("id");
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-
-    if(this.previewsrc) {
-      this.files = [
-        BardFile.fromProperties({
-          src: this.previewsrc,
-          mimetype: this.previewmimetype,
-          name: this.previewfilename,
-        })
-      ];
-    }
+  get value() {
+    return this.files.map(uploadedFile => uploadedFile.value)
   }
 
-  textTargetChanged(event) {
+  set value(val) {
     this.files = [];
-    this.append(event.target.value);
+    this.append(val);
   }
 
   append(value) {
     const signedIds = this.signedIdsFromValue(value);
-    const promises = signedIds.map(signedId => BardFile.fromSignedId(signedId));
-    Promise.all(promises).then(bardFiles => {
-      this.assignFiles(bardFiles);
+    const promises = signedIds.map(signedId => {
+      return UploadedFile.fromSignedId(signedId, { name: this.name })
+    });
+    Promise.all(promises).then(uploadedFiles => {
+      this.assignFiles(uploadedFiles);
     });
   }
 
   fileTargetChanged(event) {
-    const newFiles = Array.from(this.fileTarget.files).map(f => BardFile.fromFile(f));
+    const uploadedFiles = Array.from(this.fileTarget.files).map(file => {
+      return UploadedFile.fromFile(file, { name: this.name })
+    });
     this.fileTarget.value = null;
-    this.assignFiles(newFiles);
+    this.assignFiles(uploadedFiles);
     if(this.checkValidity()) {
       this.formController.uploadFiles(this);
     } else {
@@ -1124,7 +1210,9 @@ class BardFileField extends DirectUpload(s) {
     if(Array.isArray(value)) {
       signedIds = value;
     }
-    return signedIds
+    return signedIds.filter(signedId => {
+      return signedId.toString().length > 0
+    })
   }
 
   assignFiles(bardFiles) {
@@ -1134,14 +1222,13 @@ class BardFileField extends DirectUpload(s) {
       this.files = bardFiles.slice(-1);
     }
     this.requestUpdate();
-    this.writeSignedIds();
     this.dispatchEvent(new Event("change"));
   }
 
-  removeFile(index) {
+  removeFile(file) {
+    const index = this.files.indexOf(file);
     this.files.splice(index, 1);
     this.requestUpdate();
-    this.writeSignedIds();
     this.dispatchEvent(new Event("change"));
   }
 }

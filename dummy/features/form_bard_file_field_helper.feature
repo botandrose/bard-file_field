@@ -15,7 +15,7 @@ Feature: form.bard_file_field is an improved form.file_field input with extra fe
 
   Scenario: It uploads the file before form submission
     When I attach the file "image.jpg" to "Image"
-    Then I should see an upload progress bar at 100% within the "Image" bard-file
+    Then I should see an upload progress bar at 100% within the "image.jpg" uploaded-file
 
   Scenario: It can display an existing file
     When I attach the file "image.jpg" to "Image"
@@ -27,7 +27,7 @@ Feature: form.bard_file_field is an improved form.file_field input with extra fe
   Scenario: It supports naive serialization and resumption with the form-persistence npm package
     When I fill in "Name" with "Jerry"
     And I attach the file "image.jpg" to "Image"
-    Then I should see an upload progress bar at 100% within the "Image" bard-file
+    Then I should see an upload progress bar at 100% within the "image.jpg" uploaded-file
 
     Given I am on the homepage
     Then I should see "Name" filled in with "Jerry"
@@ -43,7 +43,7 @@ Feature: form.bard_file_field is an improved form.file_field input with extra fe
     When I fill in "Name" with "No Image"
     And I attach the file "image.jpg" to "Image"
     Then I should see a preview of "image.jpg" within the "Image" bard-file
-    When I follow "Remove media" within the "Image" bard-file
+    When I follow "Remove media" within the "image.jpg" uploaded-file
     And I press "Submit"
     Then I should see "Post created!"
     And I should see "No Image"
@@ -59,7 +59,7 @@ Feature: form.bard_file_field is an improved form.file_field input with extra fe
     And I should see the "image.jpg" image
 
     When I follow "Edit"
-    And I follow "Remove media" within the "Image" bard-file
+    And I follow "Remove media" within the "image.jpg" uploaded-file
     And I press "Submit"
     Then I should see "Post updated!"
     And I should not see "image.jpg"

@@ -4,7 +4,17 @@ import FormController from "form-controller"
 import DragAndDrop from "drag-and-drop"
 
 const Rendering = {
-  firstUpdated: function() { // Light DOM
+  firstUpdated: function() {
+    this.renderLightDOM()
+
+    this.fileTarget = this.querySelector("input[type=file]")
+    this.dialogTarget = this.querySelector("dialog")
+    this.textTarget = this.querySelector("input[type=text]")
+
+    this.formController = FormController.forForm(this.closest("form"), this.dialogTarget)
+  },
+
+  renderLightDOM: function() {
     render(html`
       <input type="file"
         style="opacity: 0.01; position: absolute; z-index: -999"
@@ -13,6 +23,13 @@ const Rendering = {
         data-direct-upload-url="${this.directupload}"
         @change="${this.fileTargetChanged}"
       >
+      <input type="text"
+        style="opacity: 0.01; position: absolute; z-index: -999"
+        .required="${this.required}"
+        name="${this.name}"
+        @change="${this.textTargetChanged}"
+      >
+      ${this.files}
       <dialog>
         <div class="direct-upload-wrapper">
           <div class="direct-upload-content">
@@ -21,50 +38,27 @@ const Rendering = {
           </div>
         </div>
       </dialog>
-      <input type="text"
-        style="opacity: 0.01; position: absolute; z-index: -999"
-        .required="${this.required}"
-        name="${this.name}"
-        @change="${this.textTargetChanged}"
-      >
     `, this, { host: this })
-
-    this.fileTarget = this.firstElementChild
-    this.dialogTarget = this.querySelector("dialog")
-    this.textTarget = this.lastElementChild
-
-    this.formController = FormController.forForm(this.closest("form"), this.dialogTarget)
   },
 
   render: function() { // Shadow DOM
-    return html`
-      <slot></slot>
+    this.renderLightDOM()
 
+    return html`
       <drag-and-drop target="${this.originalId}">
         <i class="drag-icon"></i>
         <strong>Choose ${this.multiple ? "files" : "file"} </strong>
         <span>or drag ${this.multiple ? "them" : "it"} here.</span>
 
         <div class="media-preview ${this.multiple ? "-stacked" : ''}">
-          ${this.files.map((file, index) => file.render(() => this.removeFile(index)))}
+          <slot>
+          </slot>
         </div>
       </drag-and-drop>
-    `;
+    `
   },
 
-  writeSignedIds: function() {
-    this.textTarget.value = null
-    Array.from(this.querySelectorAll("input[type=hidden]")).forEach(e => e.parentNode.removeChild(e))
-
-    this.files.forEach((bardFile, index) => {
-      if(index === 0) {
-        this.textTarget.value = bardFile.signedId
-      } else {
-        this.insertAdjacentHTML("beforeend",
-          `<input type="hidden" name="${this.name}" value="${bardFile.signedId}">`
-        )
-      }
-    })
+  reloadFilesFromDOM: function(event) {
   },
 }
 

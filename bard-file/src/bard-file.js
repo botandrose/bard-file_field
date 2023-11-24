@@ -1,6 +1,6 @@
 import { LitElement } from "lit"
 import styles from "bard-file/css"
-import BardFile from "bard-file/file"
+import UploadedFile from "bard-file/uploaded-file"
 import DirectUpload from "bard-file/direct-upload"
 import Validations from "bard-file/validations"
 import Rendering from "bard-file/rendering"
@@ -12,10 +12,6 @@ class BardFileField extends DirectUpload(LitElement) {
     name: { type: String },
     directupload: { type: String },
     multiple: { type: Boolean },
-
-    previewsrc: { type: String },
-    previewfilename: { type: String },
-    previewmimetype: { type: String },
 
     required: { type: Boolean },
     accepts: { type: String },
@@ -32,37 +28,31 @@ class BardFileField extends DirectUpload(LitElement) {
     this.removeAttribute("id")
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-
-    if(this.previewsrc) {
-      this.files = [
-        BardFile.fromProperties({
-          src: this.previewsrc,
-          mimetype: this.previewmimetype,
-          name: this.previewfilename,
-        })
-      ]
-    }
+  get value() {
+    return this.files.map(uploadedFile => uploadedFile.value)
   }
 
-  textTargetChanged(event) {
+  set value(val) {
     this.files = []
-    this.append(event.target.value)
+    this.append(val)
   }
 
   append(value) {
     const signedIds = this.signedIdsFromValue(value)
-    const promises = signedIds.map(signedId => BardFile.fromSignedId(signedId))
-    Promise.all(promises).then(bardFiles => {
-      this.assignFiles(bardFiles)
+    const promises = signedIds.map(signedId => {
+      return UploadedFile.fromSignedId(signedId, { name: this.name })
+    })
+    Promise.all(promises).then(uploadedFiles => {
+      this.assignFiles(uploadedFiles)
     })
   }
 
   fileTargetChanged(event) {
-    const newFiles = Array.from(this.fileTarget.files).map(f => BardFile.fromFile(f))
+    const uploadedFiles = Array.from(this.fileTarget.files).map(file => {
+      return UploadedFile.fromFile(file, { name: this.name })
+    })
     this.fileTarget.value = null
-    this.assignFiles(newFiles)
+    this.assignFiles(uploadedFiles)
     if(this.checkValidity()) {
       this.formController.uploadFiles(this)
     } else {
@@ -79,7 +69,9 @@ class BardFileField extends DirectUpload(LitElement) {
     if(Array.isArray(value)) {
       signedIds = value
     }
-    return signedIds
+    return signedIds.filter(signedId => {
+      return signedId.toString().length > 0
+    })
   }
 
   assignFiles(bardFiles) {
@@ -89,14 +81,13 @@ class BardFileField extends DirectUpload(LitElement) {
       this.files = bardFiles.slice(-1)
     }
     this.requestUpdate()
-    this.writeSignedIds()
     this.dispatchEvent(new Event("change"))
   }
 
-  removeFile(index) {
+  removeFile(file) {
+    const index = this.files.indexOf(file)
     this.files.splice(index, 1)
     this.requestUpdate()
-    this.writeSignedIds()
     this.dispatchEvent(new Event("change"))
   }
 }
