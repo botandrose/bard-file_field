@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import Mime from "mime"
+import Mime from "mime-lite"
 
 //import { get } from "rails-request-json"
 import { FetchRequest } from '@rails/request.js'

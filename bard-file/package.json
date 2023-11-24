@@ -1,0 +1,30 @@
+{
+  "name": "bard-file",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "next generation file input",
+  "author": "Micah Geisel",
+  "module": "dist/bard-file.js",
+  "files": [
+    "dist/bard-file.js"
+  ],
+  "scripts": {
+    "clean": "rm -fr dist",
+    "build": "rollup -c",
+    "watch": "rollup -wc",
+    "prerelease": "yarn clean && yarn build && yarn build:test && git --no-pager diff && echo && npm pack --dry-run",
+    "release": "npm publish"
+  },
+  "devDependencies": {
+    "@rails/activestorage": "^7.1.2",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "rollup": "^2.53",
+    "rollup-plugin-includepaths": "^0.2.4"
+  },
+  "dependencies": {
+    "@rails/request.js": "^0.0.9",
+    "lit": "^3.1.0",
+    "mime-lite": "^1.0.3"
+  }
+}

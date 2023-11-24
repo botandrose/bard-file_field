@@ -1,7 +1,7 @@
 import { html } from "lit"
 import { render } from "lit-html"
-import FormController from "bard-file/form-controller"
-import DragAndDrop from "bard-file/drag-and-drop"
+import FormController from "form-controller"
+import DragAndDrop from "drag-and-drop"
 
 const Rendering = {
   firstUpdated: function() { // Light DOM
