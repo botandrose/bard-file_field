@@ -151,6 +151,243 @@ var styles$1 = i$2`
 
 `;
 
+const DirectUpload = superClass => class extends superClass {
+  constructor() {
+    super();
+
+    this.addEventListener("direct-upload:initialize", event => this.init(event));
+    this.addEventListener("direct-upload:start", event => this.start(event));
+    this.addEventListener("direct-upload:progress", event => this.progress(event));
+    this.addEventListener("direct-upload:error", event => this.error(event));
+    this.addEventListener("direct-upload:end", event => this.end(event));
+  }
+
+  init(event) {
+    const { id, file } = event.detail;
+    const bardFile = this.files.find(bf => bf.file === file);
+    bardFile.state = "pending";
+    bardFile.percent = 0;
+    this.requestUpdate();
+    this.formController.init(event);
+  }
+
+  start(event) {
+    const { id, file } = event.detail;
+    const bardFile = this.files.find(bf => bf.file === file);
+    bardFile.state = "pending";
+    this.requestUpdate();
+    this.formController.start(event);
+  }
+
+  progress(event) {
+    const { id, file, progress } = event.detail;
+    const bardFile = this.files.find(bf => bf.file === file);
+    bardFile.percent = progress;
+    this.requestUpdate();
+    this.formController.progress(event);
+  }
+
+  error(event) {
+    event.preventDefault();
+    const { id, file, error } = event.detail;
+    const bardFile = this.files.find(bf => bf.file === file);
+    bardFile.state = "error";
+    bardFile.error = error;
+    this.requestUpdate();
+    this.formController.error(event);
+  }
+
+  end(event) {
+    const { id, file } = event.detail;
+    const bardFile = this.files.find(bf => bf.file === file);
+    bardFile.state = "complete";
+    bardFile.percent = 100;
+    this.requestUpdate();
+    this.formController.end(event);
+  }
+};
+
+const Validations = superClass => class extends superClass {
+  checkValidity() {
+    let errors = [];
+    const label = document.querySelector(`label[for='${this.originalId}']`).innerText;
+
+    this.files.forEach(file => {
+      errors.push(...new Accepts(file, label, this.accepts).errors);
+      errors.push(...new Max(file, label, this.max).errors);
+    });
+
+    this.setCustomValidity(errors.join(" "));
+    this.reportValidity();
+    return errors.length === 0
+  }
+
+  setCustomValidity(msg) {
+    this.fileTarget.setCustomValidity(msg);
+  }
+
+  reportValidity() {
+    this.fileTarget.reportValidity();
+  }
+
+  get validationMessage() {
+    return this.fileTarget.validationMessage
+  }
+};
+
+class Accepts {
+  constructor(file, label, acceptsString) {
+    this.errors = [];
+
+    const accepts = acceptsString ? acceptsString.split(/,\s*/) : [];
+    const regexes = accepts.map(accept => {
+      const regex = this.regexMap[accept];
+      if(!regex) console.error(`Unknown accepts type: ${accept}`);
+      return regex
+    }).filter(r => !!r); // discard not found
+
+    if(regexes.length > 0 && !regexes.some(regex => regex.test(file.mimetype))) {
+      this.errors.push(`${label} must be a ${this.joinWords(accepts)}.`);
+    }
+  }
+
+  get regexMap() {
+    return {
+      image: new RegExp("^image/.+$"),
+      video: new RegExp("^video/.+$"),
+      pdf: new RegExp("^application/pdf$"),
+    }
+  }
+
+  joinWords(words) {
+    if(words.length >= 3) {
+      return (words.slice(0, -1) + [`or ${words.at(-1)}`]).join(", ")
+    } else {
+      return words.join(" or ")
+    }
+  }
+}
+
+class Max {
+  constructor(file, label, max) {
+    this.file = file;
+    this.label = label;
+    this.max = max;
+    this.errors = [];
+
+    if(this.max && this.file.size > this.max) {
+      this.errors.push(this.errorMessage);
+    }
+  }
+
+  get errorMessage() {
+    return [
+      `${this.label} must be smaller than ${this.formatBytes(this.max)},`,
+      `and "${this.file.filename}" is ${this.formatBytes(this.file.size)}.`,
+      `Please attach a smaller file.`,
+    ].join(" ")
+  }
+
+  formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
+  }
+}
+
+class DragAndDrop extends s {
+  static properties = {
+    target: { type: String },
+  }
+
+  createRenderRoot() {
+    return this
+  }
+
+  get fileTarget() {
+    return document.getElementById(this.target)
+  }
+
+  constructor() {
+    super();
+
+    this.addEventListener("dragover", event => this.highlight(event));
+    this.addEventListener("dragleave", event => this.unhighlight(event));
+    this.addEventListener("drop", event => this.drop(event));
+
+    this.addEventListener("click", event => this.fileTarget.click(event));
+  }
+
+  drop(event) {
+    this.unhighlight(event);
+    this.fileTarget.files = event.dataTransfer.files;
+    this.fileTarget.dispatchEvent(new Event("change"));
+  }
+
+  highlight(event) {
+    this.halt(event);
+    this.classList.add("-dragover");
+  }
+
+  unhighlight(event) {
+    this.halt(event);
+    this.classList.remove("-dragover");
+  }
+
+  halt(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}
+
+customElements.define("drag-and-drop", DragAndDrop);
+
+const Rendering = superClass => class extends superClass {
+  firstUpdated() {
+    this.fileTarget = this.querySelector("input[type=file]");
+  }
+
+  renderLightDOM() {
+    j(x`
+      <input type="file"
+        style="opacity: 0.01; position: absolute; z-index: -999"
+        id="${this.originalId}"
+        .multiple="${this.multiple}"
+        data-direct-upload-url="${this.directupload}"
+        @change="${this.fileTargetChanged}"
+        ?required=${this.files.length === 0 && this.required}
+      >
+      ${this.files.length > 0
+        ? this.files
+        : x`<input type="hidden" name=${this.name}>`
+      }
+    `, this, { host: this });
+  }
+
+  render() { // Shadow DOM
+    this.renderLightDOM();
+
+    return x`
+      <drag-and-drop target="${this.originalId}">
+        <i class="drag-icon"></i>
+        <strong>Choose ${this.multiple ? "files" : "file"} </strong>
+        <span>or drag ${this.multiple ? "them" : "it"} here.</span>
+
+        <div class="media-preview ${this.multiple ? "-stacked" : ''}">
+          <slot>
+          </slot>
+        </div>
+      </drag-and-drop>
+    `
+  }
+};
+
 var styles = i$2`
   img, video{
     max-width: 100%;
@@ -762,156 +999,6 @@ class UploadedFile extends s {
 
 customElements.define('uploaded-file', UploadedFile);
 
-const DirectUpload = superClass => class extends superClass {
-  constructor() {
-    super();
-
-    this.addEventListener("direct-upload:initialize", event => this.init(event));
-    this.addEventListener("direct-upload:start", event => this.start(event));
-    this.addEventListener("direct-upload:progress", event => this.progress(event));
-    this.addEventListener("direct-upload:error", event => this.error(event));
-    this.addEventListener("direct-upload:end", event => this.end(event));
-  }
-
-  init(event) {
-    const { id, file } = event.detail;
-    const bardFile = this.files.find(bf => bf.file === file);
-    bardFile.state = "pending";
-    bardFile.percent = 0;
-    this.requestUpdate();
-    this.formController.init(event);
-  }
-
-  start(event) {
-    const { id, file } = event.detail;
-    const bardFile = this.files.find(bf => bf.file === file);
-    bardFile.state = "pending";
-    this.requestUpdate();
-    this.formController.start(event);
-  }
-
-  progress(event) {
-    const { id, file, progress } = event.detail;
-    const bardFile = this.files.find(bf => bf.file === file);
-    bardFile.percent = progress;
-    this.requestUpdate();
-    this.formController.progress(event);
-  }
-
-  error(event) {
-    event.preventDefault();
-    const { id, file, error } = event.detail;
-    const bardFile = this.files.find(bf => bf.file === file);
-    bardFile.state = "error";
-    bardFile.error = error;
-    this.requestUpdate();
-    this.formController.error(event);
-  }
-
-  end(event) {
-    const { id, file } = event.detail;
-    const bardFile = this.files.find(bf => bf.file === file);
-    bardFile.state = "complete";
-    bardFile.percent = 100;
-    this.requestUpdate();
-    this.formController.end(event);
-  }
-};
-
-const Validations = superClass => class extends superClass {
-  checkValidity() {
-    let errors = [];
-    const label = document.querySelector(`label[for='${this.originalId}']`).innerText;
-
-    this.files.forEach(file => {
-      errors.push(...new Accepts(file, label, this.accepts).errors);
-      errors.push(...new Max(file, label, this.max).errors);
-    });
-
-    this.setCustomValidity(errors.join(" "));
-    this.reportValidity();
-    return errors.length === 0
-  }
-
-  setCustomValidity(msg) {
-    this.fileTarget.setCustomValidity(msg);
-  }
-
-  reportValidity() {
-    this.fileTarget.reportValidity();
-  }
-
-  get validationMessage() {
-    return this.fileTarget.validationMessage
-  }
-};
-
-class Accepts {
-  constructor(file, label, acceptsString) {
-    this.errors = [];
-
-    const accepts = acceptsString ? acceptsString.split(/,\s*/) : [];
-    const regexes = accepts.map(accept => {
-      const regex = this.regexMap[accept];
-      if(!regex) console.error(`Unknown accepts type: ${accept}`);
-      return regex
-    }).filter(r => !!r); // discard not found
-
-    if(regexes.length > 0 && !regexes.some(regex => regex.test(file.mimetype))) {
-      this.errors.push(`${label} must be a ${this.joinWords(accepts)}.`);
-    }
-  }
-
-  get regexMap() {
-    return {
-      image: new RegExp("^image/.+$"),
-      video: new RegExp("^video/.+$"),
-      pdf: new RegExp("^application/pdf$"),
-    }
-  }
-
-  joinWords(words) {
-    if(words.length >= 3) {
-      return (words.slice(0, -1) + [`or ${words.at(-1)}`]).join(", ")
-    } else {
-      return words.join(" or ")
-    }
-  }
-}
-
-class Max {
-  constructor(file, label, max) {
-    this.file = file;
-    this.label = label;
-    this.max = max;
-    this.errors = [];
-
-    if(this.max && this.file.size > this.max) {
-      this.errors.push(this.errorMessage);
-    }
-  }
-
-  get errorMessage() {
-    return [
-      `${this.label} must be smaller than ${this.formatBytes(this.max)},`,
-      `and "${this.file.filename}" is ${this.formatBytes(this.file.size)}.`,
-      `Please attach a smaller file.`,
-    ].join(" ")
-  }
-
-  formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
-  }
-}
-
 class MyDirectUploadController extends DirectUploadController {
   constructor(input, bardFile) {
     super(input, bardFile.file);
@@ -933,18 +1020,28 @@ class MyDirectUploadController extends DirectUploadController {
 }
 
 class FormController {
-  static forForm(form, dialog) {
-    return form.bardFileFormController ||= new FormController(form, dialog)
+  static forForm(form) {
+    return form.bardFileFormController ||= new FormController(form)
   }
 
-  constructor(form, dialog) {
+  constructor(form) {
     this.element = form;
-    this.dialog = dialog;
     this.progressTargetMap = {};
     this.controllers = [];
     this.processing = false;
     this.errors = false;
 
+    this.element.insertAdjacentHTML("beforeend",
+      `<dialog id="form-controller-dialog">
+        <div class="direct-upload-wrapper">
+          <div class="direct-upload-content">
+            <h3>Uploading your media</h3>
+            <div id="progress-container"></div>
+          </div>
+        </div>
+      </dialog>`);
+
+    this.dialog = this.element.querySelector("#form-controller-dialog");
     this.progressContainerTarget = this.dialog.querySelector("#progress-container");
 
     this.element.addEventListener("submit", event => this.submit(event));
@@ -1043,106 +1140,6 @@ class FormController {
   }
 }
 
-class DragAndDrop extends s {
-  static properties = {
-    target: { type: String },
-  }
-
-  createRenderRoot() {
-    return this
-  }
-
-  get fileTarget() {
-    return document.getElementById(this.target)
-  }
-
-  constructor() {
-    super();
-
-    this.addEventListener("dragover", event => this.highlight(event));
-    this.addEventListener("dragleave", event => this.unhighlight(event));
-    this.addEventListener("drop", event => this.drop(event));
-
-    this.addEventListener("click", event => this.fileTarget.click(event));
-  }
-
-  drop(event) {
-    this.unhighlight(event);
-    this.fileTarget.files = event.dataTransfer.files;
-    this.fileTarget.dispatchEvent(new Event("change"));
-  }
-
-  highlight(event) {
-    this.halt(event);
-    this.classList.add("-dragover");
-  }
-
-  unhighlight(event) {
-    this.halt(event);
-    this.classList.remove("-dragover");
-  }
-
-  halt(event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-}
-
-customElements.define("drag-and-drop", DragAndDrop);
-
-const Rendering = superClass => class extends superClass {
-  firstUpdated() {
-    this.renderLightDOM();
-
-    this.fileTarget = this.querySelector("input[type=file]");
-    this.dialogTarget = this.querySelector("dialog");
-
-    this.formController = FormController.forForm(this.closest("form"), this.dialogTarget);
-  }
-
-  renderLightDOM() {
-    j(x`
-      <input type="file"
-        style="opacity: 0.01; position: absolute; z-index: -999"
-        id="${this.originalId}"
-        .multiple="${this.multiple}"
-        data-direct-upload-url="${this.directupload}"
-        @change="${this.fileTargetChanged}"
-        ?required=${this.files.length === 0 && this.required}
-      >
-      ${this.files.length > 0
-        ? this.files
-        : x`<input type="hidden" name=${this.name}>`
-      }
-      <dialog>
-        <div class="direct-upload-wrapper">
-          <div class="direct-upload-content">
-            <h3>Uploading your media</h3>
-            <div id="progress-container"></div>
-          </div>
-        </div>
-      </dialog>
-    `, this, { host: this });
-  }
-
-  render() { // Shadow DOM
-    this.renderLightDOM();
-
-    return x`
-      <drag-and-drop target="${this.originalId}">
-        <i class="drag-icon"></i>
-        <strong>Choose ${this.multiple ? "files" : "file"} </strong>
-        <span>or drag ${this.multiple ? "them" : "it"} here.</span>
-
-        <div class="media-preview ${this.multiple ? "-stacked" : ''}">
-          <slot>
-          </slot>
-        </div>
-      </drag-and-drop>
-    `
-  }
-};
-
 class BardFileField extends DirectUpload(Validations(Rendering(s))) {
   static styles = styles$1
 
@@ -1164,6 +1161,11 @@ class BardFileField extends DirectUpload(Validations(Rendering(s))) {
     this.files = [];
     this.originalId = this.id;
     this.removeAttribute("id");
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.formController = FormController.forForm(this.closest("form"));
   }
 
   get value() {

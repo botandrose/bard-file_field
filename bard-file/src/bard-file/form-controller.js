@@ -21,18 +21,28 @@ class MyDirectUploadController extends DirectUploadController {
 }
 
 export default class FormController {
-  static forForm(form, dialog) {
-    return form.bardFileFormController ||= new FormController(form, dialog)
+  static forForm(form) {
+    return form.bardFileFormController ||= new FormController(form)
   }
 
-  constructor(form, dialog) {
+  constructor(form) {
     this.element = form
-    this.dialog = dialog
     this.progressTargetMap = {}
     this.controllers = []
     this.processing = false
     this.errors = false
 
+    this.element.insertAdjacentHTML("beforeend",
+      `<dialog id="form-controller-dialog">
+        <div class="direct-upload-wrapper">
+          <div class="direct-upload-content">
+            <h3>Uploading your media</h3>
+            <div id="progress-container"></div>
+          </div>
+        </div>
+      </dialog>`)
+
+    this.dialog = this.element.querySelector("#form-controller-dialog")
     this.progressContainerTarget = this.dialog.querySelector("#progress-container")
 
     this.element.addEventListener("submit", event => this.submit(event))

@@ -1,16 +1,10 @@
 import { html } from "lit"
 import { render } from "lit-html"
-import FormController from "form-controller"
 import DragAndDrop from "drag-and-drop"
 
 const Rendering = superClass => class extends superClass {
   firstUpdated() {
-    this.renderLightDOM()
-
     this.fileTarget = this.querySelector("input[type=file]")
-    this.dialogTarget = this.querySelector("dialog")
-
-    this.formController = FormController.forForm(this.closest("form"), this.dialogTarget)
   }
 
   renderLightDOM() {
@@ -27,14 +21,6 @@ const Rendering = superClass => class extends superClass {
         ? this.files
         : html`<input type="hidden" name=${this.name}>`
       }
-      <dialog>
-        <div class="direct-upload-wrapper">
-          <div class="direct-upload-content">
-            <h3>Uploading your media</h3>
-            <div id="progress-container"></div>
-          </div>
-        </div>
-      </dialog>
     `, this, { host: this })
   }
 

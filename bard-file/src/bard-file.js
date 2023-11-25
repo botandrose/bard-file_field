@@ -1,9 +1,10 @@
 import { LitElement } from "lit"
 import styles from "bard-file/css"
-import UploadedFile from "bard-file/uploaded-file"
 import DirectUpload from "bard-file/direct-upload"
 import Validations from "bard-file/validations"
 import Rendering from "bard-file/rendering"
+import UploadedFile from "bard-file/uploaded-file"
+import FormController from "form-controller"
 
 class BardFileField extends DirectUpload(Validations(Rendering(LitElement))) {
   static styles = styles
@@ -26,6 +27,11 @@ class BardFileField extends DirectUpload(Validations(Rendering(LitElement))) {
     this.files = []
     this.originalId = this.id
     this.removeAttribute("id")
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this.formController = FormController.forForm(this.closest("form"))
   }
 
   get value() {
