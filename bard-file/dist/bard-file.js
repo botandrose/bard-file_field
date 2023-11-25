@@ -353,7 +353,8 @@ const Rendering = superClass => class extends superClass {
     this.fileTarget = this.querySelector("input[type=file]");
   }
 
-  renderLightDOM() {
+  render() {
+    // Light DOM
     j(x`
       <input type="file"
         style="opacity: 0.01; position: absolute; z-index: -999"
@@ -368,11 +369,8 @@ const Rendering = superClass => class extends superClass {
         : x`<input type="hidden" name=${this.name}>`
       }
     `, this, { host: this });
-  }
 
-  render() { // Shadow DOM
-    this.renderLightDOM();
-
+    // Shadow DOM
     return x`
       <drag-and-drop target="${this.originalId}">
         <i class="drag-icon"></i>
