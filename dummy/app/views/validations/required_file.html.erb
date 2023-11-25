@@ -1,0 +1,10 @@
+<h1>Required File</h1>
+<%= form_with model: @post, url: request.fullpath, method: :patch do |form| %>
+  <p>
+    <%= form.label :file, "Required file" %>
+    <%= form.bard_file_field :file, required: true %>
+  </p>
+
+  <p><%= form.submit "Submit" %></p>
+<% end %>
+

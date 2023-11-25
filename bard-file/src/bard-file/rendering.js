@@ -9,7 +9,6 @@ const Rendering = {
 
     this.fileTarget = this.querySelector("input[type=file]")
     this.dialogTarget = this.querySelector("dialog")
-    this.textTarget = this.querySelector("input[type=text]")
 
     this.formController = FormController.forForm(this.closest("form"), this.dialogTarget)
   },
@@ -22,14 +21,12 @@ const Rendering = {
         .multiple="${this.multiple}"
         data-direct-upload-url="${this.directupload}"
         @change="${this.fileTargetChanged}"
+        ?required=${this.files.length === 0 && this.required}
       >
-      <input type="text"
-        style="opacity: 0.01; position: absolute; z-index: -999"
-        .required="${this.required}"
-        name="${this.name}"
-        @change="${this.textTargetChanged}"
-      >
-      ${this.files}
+      ${this.files.length > 0
+        ? this.files
+        : html`<input type="hidden" name=${this.name}>`
+      }
       <dialog>
         <div class="direct-upload-wrapper">
           <div class="direct-upload-content">
@@ -56,9 +53,6 @@ const Rendering = {
         </div>
       </drag-and-drop>
     `
-  },
-
-  reloadFilesFromDOM: function(event) {
   },
 }
 

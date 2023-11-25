@@ -1,4 +1,16 @@
 Feature: form.bard_file_field has validation options
+  Scenario: It supports required validation
+    Given I am on "/validations/required_file"
+
+    When I press "Submit"
+    Then I should not see "Post created!"
+    And the "Required file" bard-file should have a validation error containing "Please select a file."
+
+    When I attach the file "image.jpg" to "Required file"
+    And I press "Submit"
+    Then I should see "Post created!"
+    And I should see a preview of "image.jpg" within the "Required file" bard-file
+
   Scenario: It supports file type validation
     Given I am on "/validations/optional_image"
 

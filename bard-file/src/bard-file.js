@@ -5,7 +5,7 @@ import DirectUpload from "bard-file/direct-upload"
 import Validations from "bard-file/validations"
 import Rendering from "bard-file/rendering"
 
-class BardFileField extends DirectUpload(LitElement) {
+class BardFileField extends DirectUpload(Validations(LitElement)) {
   static styles = styles
 
   static properties = {
@@ -34,31 +34,13 @@ class BardFileField extends DirectUpload(LitElement) {
 
   set value(val) {
     this.files = []
-    this.append(val)
-  }
-
-  append(value) {
-    const signedIds = this.signedIdsFromValue(value)
+    const signedIds = this.signedIdsFromValue(val)
     const promises = signedIds.map(signedId => {
       return UploadedFile.fromSignedId(signedId, { name: this.name })
     })
     Promise.all(promises).then(uploadedFiles => {
       this.assignFiles(uploadedFiles)
     })
-  }
-
-  fileTargetChanged(event) {
-    const uploadedFiles = Array.from(this.fileTarget.files).map(file => {
-      return UploadedFile.fromFile(file, { name: this.name })
-    })
-    this.fileTarget.value = null
-    this.assignFiles(uploadedFiles)
-    if(this.checkValidity()) {
-      this.formController.uploadFiles(this)
-    } else {
-      this.files = []
-      this.textTarget.value = null
-    }
   }
 
   signedIdsFromValue(value) {
@@ -72,6 +54,19 @@ class BardFileField extends DirectUpload(LitElement) {
     return signedIds.filter(signedId => {
       return signedId.toString().length > 0
     })
+  }
+
+  fileTargetChanged(event) {
+    const uploadedFiles = Array.from(this.fileTarget.files).map(file => {
+      return UploadedFile.fromFile(file, { name: this.name })
+    })
+    this.fileTarget.value = null
+    this.assignFiles(uploadedFiles)
+    if(this.checkValidity()) {
+      this.formController.uploadFiles(this)
+    } else {
+      this.files = []
+    }
   }
 
   assignFiles(bardFiles) {
@@ -92,9 +87,6 @@ class BardFileField extends DirectUpload(LitElement) {
   }
 }
 
-Object.assign(BardFileField.prototype,
-  Validations,
-  Rendering,
-)
+Object.assign(BardFileField.prototype, Rendering)
 
 customElements.define("bard-file", BardFileField)

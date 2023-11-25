@@ -1,5 +1,5 @@
-const Validations = {
-  checkValidity: function() {
+const Validations = superClass => class extends superClass {
+  checkValidity() {
     let errors = []
     const label = document.querySelector(`label[for='${this.originalId}']`).innerText
 
@@ -11,15 +11,19 @@ const Validations = {
     this.setCustomValidity(errors.join(" "))
     this.reportValidity()
     return errors.length === 0
-  },
+  }
 
-  setCustomValidity: function(msg) {
-    this.textTarget.setCustomValidity(msg)
-  },
+  setCustomValidity(msg) {
+    this.fileTarget.setCustomValidity(msg)
+  }
 
-  reportValidity: function() {
-    this.textTarget.reportValidity()
-  },
+  reportValidity() {
+    this.fileTarget.reportValidity()
+  }
+
+  get validationMessage() {
+    return this.fileTarget.validationMessage
+  }
 }
 
 class Accepts {

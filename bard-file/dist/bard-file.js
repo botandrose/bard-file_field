@@ -818,8 +818,8 @@ const DirectUpload = superClass => class extends superClass {
   }
 };
 
-const Validations = {
-  checkValidity: function() {
+const Validations = superClass => class extends superClass {
+  checkValidity() {
     let errors = [];
     const label = document.querySelector(`label[for='${this.originalId}']`).innerText;
 
@@ -831,15 +831,19 @@ const Validations = {
     this.setCustomValidity(errors.join(" "));
     this.reportValidity();
     return errors.length === 0
-  },
+  }
 
-  setCustomValidity: function(msg) {
-    this.textTarget.setCustomValidity(msg);
-  },
+  setCustomValidity(msg) {
+    this.fileTarget.setCustomValidity(msg);
+  }
 
-  reportValidity: function() {
-    this.textTarget.reportValidity();
-  },
+  reportValidity() {
+    this.fileTarget.reportValidity();
+  }
+
+  get validationMessage() {
+    return this.fileTarget.validationMessage
+  }
 };
 
 class Accepts {
@@ -918,7 +922,6 @@ class MyDirectUploadController extends DirectUploadController {
     this.dispatch("start");
     this.directUpload.create(((error, attributes) => {
       if (error) {
-        this.bardFileInput.textTarget.value = null;
         this.dispatchError(error);
       } else {
         this.bardFile.value = attributes.signed_id;
@@ -1093,7 +1096,6 @@ const Rendering = {
 
     this.fileTarget = this.querySelector("input[type=file]");
     this.dialogTarget = this.querySelector("dialog");
-    this.textTarget = this.querySelector("input[type=text]");
 
     this.formController = FormController.forForm(this.closest("form"), this.dialogTarget);
   },
@@ -1106,14 +1108,12 @@ const Rendering = {
         .multiple="${this.multiple}"
         data-direct-upload-url="${this.directupload}"
         @change="${this.fileTargetChanged}"
+        ?required=${this.files.length === 0 && this.required}
       >
-      <input type="text"
-        style="opacity: 0.01; position: absolute; z-index: -999"
-        .required="${this.required}"
-        name="${this.name}"
-        @change="${this.textTargetChanged}"
-      >
-      ${this.files}
+      ${this.files.length > 0
+        ? this.files
+        : x`<input type="hidden" name=${this.name}>`
+      }
       <dialog>
         <div class="direct-upload-wrapper">
           <div class="direct-upload-content">
@@ -1141,12 +1141,9 @@ const Rendering = {
       </drag-and-drop>
     `
   },
-
-  reloadFilesFromDOM: function(event) {
-  },
 };
 
-class BardFileField extends DirectUpload(s) {
+class BardFileField extends DirectUpload(Validations(s)) {
   static styles = styles$1
 
   static properties = {
@@ -1175,31 +1172,13 @@ class BardFileField extends DirectUpload(s) {
 
   set value(val) {
     this.files = [];
-    this.append(val);
-  }
-
-  append(value) {
-    const signedIds = this.signedIdsFromValue(value);
+    const signedIds = this.signedIdsFromValue(val);
     const promises = signedIds.map(signedId => {
       return UploadedFile.fromSignedId(signedId, { name: this.name })
     });
     Promise.all(promises).then(uploadedFiles => {
       this.assignFiles(uploadedFiles);
     });
-  }
-
-  fileTargetChanged(event) {
-    const uploadedFiles = Array.from(this.fileTarget.files).map(file => {
-      return UploadedFile.fromFile(file, { name: this.name })
-    });
-    this.fileTarget.value = null;
-    this.assignFiles(uploadedFiles);
-    if(this.checkValidity()) {
-      this.formController.uploadFiles(this);
-    } else {
-      this.files = [];
-      this.textTarget.value = null;
-    }
   }
 
   signedIdsFromValue(value) {
@@ -1213,6 +1192,19 @@ class BardFileField extends DirectUpload(s) {
     return signedIds.filter(signedId => {
       return signedId.toString().length > 0
     })
+  }
+
+  fileTargetChanged(event) {
+    const uploadedFiles = Array.from(this.fileTarget.files).map(file => {
+      return UploadedFile.fromFile(file, { name: this.name })
+    });
+    this.fileTarget.value = null;
+    this.assignFiles(uploadedFiles);
+    if(this.checkValidity()) {
+      this.formController.uploadFiles(this);
+    } else {
+      this.files = [];
+    }
   }
 
   assignFiles(bardFiles) {
@@ -1233,9 +1225,6 @@ class BardFileField extends DirectUpload(s) {
   }
 }
 
-Object.assign(BardFileField.prototype,
-  Validations,
-  Rendering,
-);
+Object.assign(BardFileField.prototype, Rendering);
 
 customElements.define("bard-file", BardFileField);
