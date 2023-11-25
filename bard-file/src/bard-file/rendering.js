@@ -3,17 +3,17 @@ import { render } from "lit-html"
 import FormController from "form-controller"
 import DragAndDrop from "drag-and-drop"
 
-const Rendering = {
-  firstUpdated: function() {
+const Rendering = superClass => class extends superClass {
+  firstUpdated() {
     this.renderLightDOM()
 
     this.fileTarget = this.querySelector("input[type=file]")
     this.dialogTarget = this.querySelector("dialog")
 
     this.formController = FormController.forForm(this.closest("form"), this.dialogTarget)
-  },
+  }
 
-  renderLightDOM: function() {
+  renderLightDOM() {
     render(html`
       <input type="file"
         style="opacity: 0.01; position: absolute; z-index: -999"
@@ -36,9 +36,9 @@ const Rendering = {
         </div>
       </dialog>
     `, this, { host: this })
-  },
+  }
 
-  render: function() { // Shadow DOM
+  render() { // Shadow DOM
     this.renderLightDOM()
 
     return html`
@@ -53,7 +53,7 @@ const Rendering = {
         </div>
       </drag-and-drop>
     `
-  },
+  }
 }
 
 export default Rendering

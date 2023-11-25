@@ -1090,17 +1090,17 @@ class DragAndDrop extends s {
 
 customElements.define("drag-and-drop", DragAndDrop);
 
-const Rendering = {
-  firstUpdated: function() {
+const Rendering = superClass => class extends superClass {
+  firstUpdated() {
     this.renderLightDOM();
 
     this.fileTarget = this.querySelector("input[type=file]");
     this.dialogTarget = this.querySelector("dialog");
 
     this.formController = FormController.forForm(this.closest("form"), this.dialogTarget);
-  },
+  }
 
-  renderLightDOM: function() {
+  renderLightDOM() {
     j(x`
       <input type="file"
         style="opacity: 0.01; position: absolute; z-index: -999"
@@ -1123,9 +1123,9 @@ const Rendering = {
         </div>
       </dialog>
     `, this, { host: this });
-  },
+  }
 
-  render: function() { // Shadow DOM
+  render() { // Shadow DOM
     this.renderLightDOM();
 
     return x`
@@ -1140,10 +1140,10 @@ const Rendering = {
         </div>
       </drag-and-drop>
     `
-  },
+  }
 };
 
-class BardFileField extends DirectUpload(Validations(s)) {
+class BardFileField extends DirectUpload(Validations(Rendering(s))) {
   static styles = styles$1
 
   static properties = {
@@ -1224,7 +1224,5 @@ class BardFileField extends DirectUpload(Validations(s)) {
     this.dispatchEvent(new Event("change"));
   }
 }
-
-Object.assign(BardFileField.prototype, Rendering);
 
 customElements.define("bard-file", BardFileField);
