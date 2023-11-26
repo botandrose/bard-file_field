@@ -168,7 +168,6 @@ const DirectUpload = superClass => class extends superClass {
     bardFile.state = "pending";
     bardFile.percent = 0;
     this.requestUpdate();
-    this.formController.init(event);
   }
 
   start(event) {
@@ -176,7 +175,6 @@ const DirectUpload = superClass => class extends superClass {
     const bardFile = this.files.find(bf => bf.file === file);
     bardFile.state = "pending";
     this.requestUpdate();
-    this.formController.start(event);
   }
 
   progress(event) {
@@ -184,7 +182,6 @@ const DirectUpload = superClass => class extends superClass {
     const bardFile = this.files.find(bf => bf.file === file);
     bardFile.percent = progress;
     this.requestUpdate();
-    this.formController.progress(event);
   }
 
   error(event) {
@@ -194,7 +191,6 @@ const DirectUpload = superClass => class extends superClass {
     bardFile.state = "error";
     bardFile.error = error;
     this.requestUpdate();
-    this.formController.error(event);
   }
 
   end(event) {
@@ -203,7 +199,6 @@ const DirectUpload = superClass => class extends superClass {
     bardFile.state = "complete";
     bardFile.percent = 100;
     this.requestUpdate();
-    this.formController.end(event);
   }
 };
 
@@ -1044,6 +1039,12 @@ class FormController {
 
     this.element.addEventListener("submit", event => this.submit(event));
     window.addEventListener("beforeunload", event => this.beforeUnload(event));
+
+    this.element.addEventListener("direct-upload:initialize", event => this.init(event));
+    this.element.addEventListener("direct-upload:start", event => this.start(event));
+    this.element.addEventListener("direct-upload:progress", event => this.progress(event));
+    this.element.addEventListener("direct-upload:error", event => this.error(event));
+    this.element.addEventListener("direct-upload:end", event => this.end(event));
   }
 
   beforeUnload(event) {

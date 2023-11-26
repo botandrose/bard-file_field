@@ -47,6 +47,12 @@ export default class FormController {
 
     this.element.addEventListener("submit", event => this.submit(event))
     window.addEventListener("beforeunload", event => this.beforeUnload(event))
+
+    this.element.addEventListener("direct-upload:initialize", event => this.init(event))
+    this.element.addEventListener("direct-upload:start", event => this.start(event))
+    this.element.addEventListener("direct-upload:progress", event => this.progress(event))
+    this.element.addEventListener("direct-upload:error", event => this.error(event))
+    this.element.addEventListener("direct-upload:end", event => this.end(event))
   }
 
   beforeUnload(event) {

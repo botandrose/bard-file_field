@@ -15,7 +15,6 @@ const DirectUpload = superClass => class extends superClass {
     bardFile.state = "pending"
     bardFile.percent = 0
     this.requestUpdate()
-    this.formController.init(event)
   }
 
   start(event) {
@@ -23,7 +22,6 @@ const DirectUpload = superClass => class extends superClass {
     const bardFile = this.files.find(bf => bf.file === file)
     bardFile.state = "pending"
     this.requestUpdate()
-    this.formController.start(event)
   }
 
   progress(event) {
@@ -31,7 +29,6 @@ const DirectUpload = superClass => class extends superClass {
     const bardFile = this.files.find(bf => bf.file === file)
     bardFile.percent = progress
     this.requestUpdate()
-    this.formController.progress(event)
   }
 
   error(event) {
@@ -41,7 +38,6 @@ const DirectUpload = superClass => class extends superClass {
     bardFile.state = "error"
     bardFile.error = error
     this.requestUpdate()
-    this.formController.error(event)
   }
 
   end(event) {
@@ -50,7 +46,6 @@ const DirectUpload = superClass => class extends superClass {
     bardFile.state = "complete"
     bardFile.percent = 100
     this.requestUpdate()
-    this.formController.end(event)
   }
 }
 
