@@ -1,6 +1,6 @@
 import { html } from "lit"
 import { render } from "lit-html"
-import DragAndDrop from "drag-and-drop"
+import FileDrop from "file-drop"
 
 const Rendering = superClass => class extends superClass {
   firstUpdated() {
@@ -26,7 +26,7 @@ const Rendering = superClass => class extends superClass {
 
     // Shadow DOM
     return html`
-      <drag-and-drop target="${this.originalId}">
+      <file-drop target="${this.originalId}">
         <i class="drag-icon"></i>
         <strong>Choose ${this.multiple ? "files" : "file"} </strong>
         <span>or drag ${this.multiple ? "them" : "it"} here.</span>
@@ -35,7 +35,7 @@ const Rendering = superClass => class extends superClass {
           <slot>
           </slot>
         </div>
-      </drag-and-drop>
+      </file-drop>
     `
   }
 }

@@ -1,6 +1,6 @@
 import { LitElement } from "lit"
 
-class DragAndDrop extends LitElement {
+class FileDrop extends LitElement {
   static properties = {
     target: { type: String },
   }
@@ -45,7 +45,7 @@ class DragAndDrop extends LitElement {
   }
 }
 
-customElements.define("drag-and-drop", DragAndDrop)
+customElements.define("file-drop", FileDrop)
 
-export default DragAndDrop
+export default FileDrop
 
