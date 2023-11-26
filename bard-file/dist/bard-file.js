@@ -875,16 +875,6 @@ class UploadedFile extends s {
     file: { state: true },
   }
 
-  static fromProperties(props) {
-    return Object.assign(new UploadedFile(), {
-      ...props,
-      size: 0, // HACK always pass max file check
-      state: "complete",
-      percent: 100,
-      file: null,
-    })
-  }
-
   static fromFile(file, props={}) {
     const extension = file.name.split(".").at(-1);
     return Object.assign(new UploadedFile(), {
@@ -901,11 +891,14 @@ class UploadedFile extends s {
 
   static fromSignedId(signedId, props={}) {
     return get(`/rails/active_storage/blobs/info/${signedId}`).then(blob => {
-      return UploadedFile.fromProperties({
+      return Object.assign(new UploadedFile(), {
         ...props,
+        // src: FIXME
         filename: blob.filename,
         mimetype: blob.content_type,
         size: blob.byte_size,
+        state: "complete",
+        percent: 100,
         value: signedId,
       })
     })
