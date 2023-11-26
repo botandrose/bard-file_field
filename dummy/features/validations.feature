@@ -15,7 +15,7 @@ Feature: form.bard_file_field has validation options
     Given I am on "/validations/optional_image"
 
     When I attach the file "video.mp4" to "Optional image"
-    Then the "Optional image" bard-file should have a validation error containing "Optional image must be a image."
+    Then the "Optional image" bard-file should have a validation error containing "Must be a image."
     Then I should not see a preview within the "Optional image" bard-file
 
     When I press "Submit"
@@ -30,7 +30,7 @@ Feature: form.bard_file_field has validation options
   Scenario: It supports file size validation
     Given I am on "/validations/optional_file_with_max_size"
     When I attach the file "video.mp4" to "File"
-    Then the "File" bard-file should have a validation error containing "File must be smaller than 100KB, and \"video.mp4\" is 119.59KB. Please attach a smaller file."
+    Then the "File" bard-file should have a validation error containing "Must be smaller than 100KB, and \"video.mp4\" is 119.59KB. Please attach a smaller file."
     Then I should not see a preview within the "File" bard-file
 
     When I press "Submit"

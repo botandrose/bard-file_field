@@ -28,6 +28,9 @@ export default class UploadedFile extends LitElement {
     mimetype: { type: String, reflect: true },
     size: { type: Number, reflect: true },
 
+    accepts: { type: String },
+    max: { type: Number },
+
     state: { state: true },
     percent: { state: true },
     file: { state: true },
@@ -108,6 +111,92 @@ export default class UploadedFile extends LitElement {
     render(html`
       <input type="hidden" name="${this.name}" value="${this.value}">
     `, this, { host: this })
+  }
+
+  checkValidity() {
+    let errors = []
+    errors.push(...new Accepts(this).errors)
+    errors.push(...new Max(this).errors)
+    this.setCustomValidity(errors.join(" "))
+    // this.reportValidity() // fire invalid event?
+    return errors.length === 0
+  }
+
+  setCustomValidity(msg) {
+    this.validationMessage = msg
+  }
+}
+
+class Accepts {
+  constructor(uploadedFile) {
+    this.errors = []
+
+    const accepts = uploadedFile.accepts ? uploadedFile.accepts.split(/,\s*/) : []
+    const regexes = accepts.map(accept => {
+      const regex = this.regexMap[accept]
+      if(!regex) console.error(`Unknown accepts type: ${accept}`)
+      return regex
+    }).filter(r => !!r) // discard not found
+
+    if(regexes.length > 0 && !regexes.some(regex => regex.test(uploadedFile.mimetype))) {
+      this.errors.push(`Must be a ${this.joinWords(accepts)}.`)
+    }
+  }
+
+  get regexMap() {
+    return {
+      image: new RegExp("^image/.+$"),
+      video: new RegExp("^video/.+$"),
+      pdf: new RegExp("^application/pdf$"),
+    }
+  }
+
+  joinWords(words) {
+    if(words.length >= 3) {
+      return (words.slice(0, -1) + [`or ${words.at(-1)}`]).join(", ")
+    } else {
+      return words.join(" or ")
+    }
+  }
+}
+
+class Max {
+  constructor(uploadedFile) {
+    this.uploadedFile = uploadedFile
+  }
+
+  get errors() {
+    if(this._errors) return this._errors
+    this._errors = []
+    if(!this.checkValidity()) {
+      this._errors.push(this.errorMessage)
+    }
+    return this._errors
+  }
+
+  checkValidity() {
+    if(!this.uploadedFile.max) return true
+    return this.uploadedFile.size <= this.uploadedFile.max
+  }
+
+  get errorMessage() {
+    return [
+      `Must be smaller than ${this.formatBytes(this.uploadedFile.max)},`,
+      `and "${this.uploadedFile.filename}" is ${this.formatBytes(this.uploadedFile.size)}.`,
+      `Please attach a smaller file.`,
+    ].join(" ")
+  }
+
+  formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
   }
 }
 

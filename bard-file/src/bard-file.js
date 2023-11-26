@@ -64,7 +64,7 @@ class BardFileField extends DirectUpload(Validations(Rendering(LitElement))) {
 
   fileTargetChanged(event) {
     const uploadedFiles = Array.from(this.fileTarget.files).map(file => {
-      return UploadedFile.fromFile(file, { name: this.name })
+      return UploadedFile.fromFile(file, { name: this.name, accepts: this.accepts, max: this.max })
     })
     this.fileTarget.value = null
     this.assignFiles(uploadedFiles)
