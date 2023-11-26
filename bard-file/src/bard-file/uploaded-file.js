@@ -2,6 +2,7 @@ import { LitElement, html } from "lit"
 import { render } from "lit-html"
 import styles from 'uploaded-file-css'
 import Mime from "mime-lite"
+import "progress-bar"
 
 //import { get } from "rails-request-json"
 import { FetchRequest } from '@rails/request.js'
@@ -89,10 +90,7 @@ export default class UploadedFile extends LitElement {
       <slot>
       </slot>
       <figure class="${klass}">
-        <div class="direct-upload separate-upload direct-upload--${this.state}">
-          <div class="direct-upload__progress" style="width: ${this.percent}%"></div>
-          <span class="direct-upload__filename">${this.filename}</span>
-        </div>
+        <progress-bar percent=${this.percent} title=${this.filename} class="separate-upload direct-upload--${this.state}"></progress-bar>
         <a class="remove-media" @click=${this.removeSelf} href="#">
           <span>Remove media</span>
         </a>

@@ -1,4 +1,5 @@
 import { DirectUploadController } from "@rails/activestorage"
+import "progress-bar"
 
 class MyDirectUploadController extends DirectUploadController {
   constructor(input, bardFile) {
@@ -115,10 +116,7 @@ export default class FormController {
     const { id, file } = event.detail
 
     this.progressContainerTarget.insertAdjacentHTML("beforebegin", `
-      <div id="direct-upload-${id}" class="direct-upload direct-upload--pending">
-        <div id="direct-upload-progress-${id}" class="direct-upload__progress" style="width: 0%"></div>
-        <span class="direct-upload__filename">${file.name}</span>
-      </div>
+      <progress-bar title=${file.name} id="direct-upload-${id}" class="direct-upload--pending"></progress-bar>
     `)
     const progressTarget = document.getElementById(`direct-upload-${id}`)
     this.progressTargetMap[id] = progressTarget
@@ -130,8 +128,7 @@ export default class FormController {
 
   progress(event) {
     const { id, progress } = event.detail
-    const progressElement = document.getElementById(`direct-upload-progress-${id}`)
-    progressElement.style.width = `${progress}%`
+    this.progressTargetMap[event.detail.id].progress = progress
   }
 
   error(event) {
@@ -139,7 +136,7 @@ export default class FormController {
     const { id, error } = event.detail
     const target = this.progressTargetMap[id]
     target.classList.add("direct-upload--error")
-    target.setAttribute("title", error)
+    target.title = error
   }
 
   end(event) {

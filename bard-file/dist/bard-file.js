@@ -26,7 +26,7 @@ const t=globalThis,i=t.trustedTypes,s$1=i?i.createPolicy("lit-html",{createHTML:
  * SPDX-License-Identifier: BSD-3-Clause
  */class s extends b{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=j(i,this.renderRoot,this.renderOptions);}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0);}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1);}render(){return w}}s._$litElement$=!0,s[("finalized")]=!0,globalThis.litElementHydrateSupport?.({LitElement:s});const r=globalThis.litElementPolyfillSupport;r?.({LitElement:s});(globalThis.litElementVersions??=[]).push("4.0.2");
 
-var styles$1 = i$2`
+var styles$2 = i$2`
   :host {
     display: block;
     padding: 25px;
@@ -104,19 +104,7 @@ var styles$1 = i$2`
     margin-bottom: 20px;
   }
 
-  .direct-upload{
-    display: block;
-    position: relative;
-    padding: 0 20px;
-    margin: 0 0px 10px 0;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
-    font-size: 18px;
-    line-height: 2;
-    flex: 0 0 calc(100% - 30px);
-    text-align: left;
-  }
-  .direct-upload.separate-upload{
+  .separate-upload{
     padding: 0 10px;
     margin-top: 10px;
     font-size: 0.9em;
@@ -126,18 +114,7 @@ var styles$1 = i$2`
     opacity: 0.6;
   }
 
-  .direct-upload__progress{
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    opacity: 0.2;
-    background: #398927;
-    transition: width 120ms ease-out, opacity 60ms 60ms ease-in;
-    transform: translate3d(0, 0, 0);
-  }
-
-  .direct-upload--complete .direct-upload__progress{
+  .direct-upload--complete {
     opacity: 0.4;
   }
 
@@ -149,6 +126,11 @@ var styles$1 = i$2`
     display: none;
   }
 
+  :host.separate-upload{
+    padding: 0 10px;
+    margin-top: 10px;
+    font-size: 0.9em;
+  }
 `;
 
 const DirectUpload = superClass => class extends superClass {
@@ -315,7 +297,7 @@ const Rendering = superClass => class extends superClass {
   }
 };
 
-var styles = i$2`
+var styles$1 = i$2`
   img, video{
     max-width: 100%;
   }
@@ -511,6 +493,50 @@ let Mime = Mime_1;
 var src = new Mime(standard, others);
 
 var Mime$1 = /*@__PURE__*/getDefaultExportFromCjs(src);
+
+var styles = i$2`
+  :host {
+    display: block;
+    position: relative;
+    padding: 0 20px;
+    margin: 0 0px 10px 0;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    font-size: 18px;
+    line-height: 2;
+    flex: 0 0 calc(100% - 30px);
+    text-align: left;
+  }
+
+  .bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    opacity: 0.2;
+    background: #398927;
+    transition: width 120ms ease-out, opacity 60ms 60ms ease-in;
+    transform: translate3d(0, 0, 0);
+  }
+`;
+
+class ProgressBar extends s {
+  static styles = styles
+
+  static properties = {
+    percent: { type: Number },
+    title: { type: String },
+  }
+
+  render() {
+    return x`
+      <div class="bar" style="width: ${this.percent}%"></div>
+      <span>${this.title}</span>
+    `
+  }
+}
+
+customElements.define('progress-bar', ProgressBar);
 
 class FetchResponse {
   constructor (response) {
@@ -831,7 +857,7 @@ async function get(url, payload) {
 }
 
 class UploadedFile extends s {
-  static styles = styles
+  static styles = styles$1
 
   static properties = {
     name: { type: String, reflect: true },
@@ -902,10 +928,7 @@ class UploadedFile extends s {
       <slot>
       </slot>
       <figure class="${klass}">
-        <div class="direct-upload separate-upload direct-upload--${this.state}">
-          <div class="direct-upload__progress" style="width: ${this.percent}%"></div>
-          <span class="direct-upload__filename">${this.filename}</span>
-        </div>
+        <progress-bar percent=${this.percent} title=${this.filename} class="separate-upload direct-upload--${this.state}"></progress-bar>
         <a class="remove-media" @click=${this.removeSelf} href="#">
           <span>Remove media</span>
         </a>
@@ -1130,10 +1153,7 @@ class FormController {
     const { id, file } = event.detail;
 
     this.progressContainerTarget.insertAdjacentHTML("beforebegin", `
-      <div id="direct-upload-${id}" class="direct-upload direct-upload--pending">
-        <div id="direct-upload-progress-${id}" class="direct-upload__progress" style="width: 0%"></div>
-        <span class="direct-upload__filename">${file.name}</span>
-      </div>
+      <progress-bar title=${file.name} id="direct-upload-${id}" class="direct-upload--pending"></progress-bar>
     `);
     const progressTarget = document.getElementById(`direct-upload-${id}`);
     this.progressTargetMap[id] = progressTarget;
@@ -1145,8 +1165,7 @@ class FormController {
 
   progress(event) {
     const { id, progress } = event.detail;
-    const progressElement = document.getElementById(`direct-upload-progress-${id}`);
-    progressElement.style.width = `${progress}%`;
+    this.progressTargetMap[event.detail.id].progress = progress;
   }
 
   error(event) {
@@ -1154,7 +1173,7 @@ class FormController {
     const { id, error } = event.detail;
     const target = this.progressTargetMap[id];
     target.classList.add("direct-upload--error");
-    target.setAttribute("title", error);
+    target.title = error;
   }
 
   end(event) {
@@ -1163,7 +1182,7 @@ class FormController {
 }
 
 class BardFileField extends DirectUpload(Validations(Rendering(s))) {
-  static styles = styles$1
+  static styles = styles$2
 
   static properties = {
     name: { type: String },
