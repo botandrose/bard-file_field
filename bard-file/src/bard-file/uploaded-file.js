@@ -2,21 +2,8 @@ import { LitElement, html } from "lit"
 import { render } from "lit-html"
 import styles from 'uploaded-file-css'
 import Mime from "mime-lite"
+import { get } from "rails-request-json"
 import "progress-bar"
-
-//import { get } from "rails-request-json"
-import { FetchRequest } from '@rails/request.js'
-async function get(url, payload) {
-  const request = new FetchRequest("get", url, {
-    headers: { Accept: "application/json" },
-    body: payload,
-  })
-  const response = await request.perform()
-  // FIXME doesn't deal with 304s. push upstream?
-  if(response.response.ok) {
-    return response.json
-  }
-}
 
 export default class UploadedFile extends LitElement {
   static styles = styles
