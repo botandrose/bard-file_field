@@ -1,1 +1,0 @@
-../../../bard-file/dist/bard-file.js
