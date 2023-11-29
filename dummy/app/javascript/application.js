@@ -1,2 +1,3 @@
-import 'bard-file'
+import { defineCustomElements } from 'bard-file'
+defineCustomElements()
 
