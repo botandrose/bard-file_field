@@ -4,10 +4,10 @@ import commonjs from '@rollup/plugin-commonjs';
 
 export default [
   {
-    input: "src/bard-file.js",
+    input: "./index.js",
     output: [
       {
-        file: "dist/bard-file.js",
+        file: "../app/assets/javascripts/bard-file.js",
         format: "es",
       },
     ],

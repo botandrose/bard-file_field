@@ -31,7 +31,7 @@ Feature: form.bard_file_field is an improved form.file_field input with extra fe
 
     Given I am on the homepage
     Then I should see "Name" filled in with "Jerry"
-    # FIXME how can we show a preview of the already uploaded "image.jpg"
+    And I should see a preview of "image.jpg" within the "Image" bard-file
     And I should not see a preview
 
     When I press "Submit"
