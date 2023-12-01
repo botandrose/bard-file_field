@@ -3812,7 +3812,7 @@ const UploadedFile$1 = /*@__PURE__*/ proxyCustomElement(class UploadedFile exten
         this.file = undefined;
         this.validationMessage = undefined;
         this.inputField = document.createElement("input");
-        this.inputField.style.cssText = "opacity: 0.01; position: absolute; z-index: -999";
+        this.inputField.style.cssText = "opacity: 0.01; width: 1px; height: 1px; z-index: -999";
         this.inputField.name = this.name;
         this.inputField.value = this.value;
         this.el.checkValidity = () => {
@@ -4102,7 +4102,7 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
     componentWillLoad() {
         this.el.insertAdjacentHTML("afterbegin", `
       <input type="file"
-        style="opacity: 0.01; position: absolute; z-index: -999"
+        style="opacity: 0.01; width: 1px; height: 1px; z-index: -999"
         id="${this.originalId}"
       />
       <input type="hidden" name="${this.name}" />
