@@ -3231,23 +3231,43 @@ class DirectUploadController {
     uploadedFile;
     file;
     directUpload;
+    recordXHR;
+    uploadXHR;
+    callback = null;
     constructor(uploadedFile) {
         this.uploadedFile = uploadedFile;
         this.file = this.uploadedFile.file;
         this.directUpload = new DirectUpload(this.file, this.uploadedFile.url, this);
     }
+    cancel() {
+        this.directUpload.url = null;
+        this.abortXHR(this.recordXHR);
+        this.abortXHR(this.uploadXHR);
+    }
+    abortXHR(xhr) {
+        if (!xhr)
+            return;
+        xhr.addEventListener("abort", () => {
+            this.complete("aborted", {});
+        });
+        xhr.abort();
+    }
     start(callback) {
+        this.callback = callback;
         this.dispatch("start");
-        this.directUpload.create(((error, attributes) => {
-            if (error) {
-                this.dispatchError(error);
-            }
-            else {
-                this.uploadedFile.value = attributes.signed_id;
-            }
-            this.dispatch("end");
-            callback(error);
-        }));
+        this.directUpload.create((error, attributes) => {
+            this.complete(error, attributes);
+        });
+    }
+    complete(error, attributes) {
+        if (error) {
+            this.dispatchError(error);
+        }
+        else {
+            this.uploadedFile.value = attributes.signed_id;
+        }
+        this.dispatch("end");
+        this.callback(error);
     }
     uploadRequestDidProgress(event) {
         const progress = event.loaded / event.total * 100;
@@ -3267,19 +3287,18 @@ class DirectUploadController {
         });
     }
     dispatchError(error) {
-        const event = this.dispatch("error", {
+        this.dispatch("error", {
             error: error
         });
-        if (!event.defaultPrevented) {
-            alert(error);
-        }
     }
     directUploadWillCreateBlobWithXHR(xhr) {
+        this.recordXHR = xhr;
         this.dispatch("before-blob-request", {
             xhr: xhr
         });
     }
     directUploadWillStoreFileWithXHR(xhr) {
+        this.uploadXHR = xhr;
         this.dispatch("before-storage-request", {
             xhr: xhr
         });
@@ -3789,6 +3808,7 @@ const UploadedFile$1 = /*@__PURE__*/ proxyCustomElement(class UploadedFile exten
     removeClicked = event => {
         event.stopPropagation();
         event.preventDefault();
+        this.controller?.cancel();
         this.removeEvent.emit(this);
     };
     inputField;
@@ -3811,6 +3831,8 @@ const UploadedFile$1 = /*@__PURE__*/ proxyCustomElement(class UploadedFile exten
         this.percent = 100;
         this.file = undefined;
         this.validationMessage = undefined;
+        this.uid = undefined;
+        this.uid = uid++;
         this.inputField = document.createElement("input");
         this.inputField.style.cssText = "opacity: 0.01; width: 1px; height: 1px; z-index: -999";
         this.inputField.name = this.name;
@@ -3839,8 +3861,10 @@ const UploadedFile$1 = /*@__PURE__*/ proxyCustomElement(class UploadedFile exten
         this.inputField.setCustomValidity(error);
     }
     end(_event) {
-        this.state = "complete";
-        this.percent = 100;
+        if (this.state !== "error") {
+            this.state = "complete";
+            this.percent = 100;
+        }
     }
     render() {
         return (h(Host, null, h("slot", null), h("figure", null, h("div", { class: "progress-details" }, h("progress-bar", { percent: this.percent, class: this.state }, this.filename), h("a", { class: "remove-media", onClick: this.removeClicked, href: "#" }, h("span", null, "Remove media"))), h("file-preview", { src: this.src, mimetype: this.mimetype }))));
@@ -3871,8 +3895,10 @@ const UploadedFile$1 = /*@__PURE__*/ proxyCustomElement(class UploadedFile exten
         "state": [1537],
         "percent": [1538],
         "file": [16],
-        "validationMessage": [1, "validation-message"]
+        "validationMessage": [1, "validation-message"],
+        "uid": [2]
     }, [[0, "direct-upload:initialize", "start"], [0, "direct-upload:start", "start"], [0, "direct-upload:progress", "progress"], [0, "direct-upload:error", "error"], [0, "direct-upload:end", "end"]]]);
+let uid = 0;
 
 const fileDropCss = "file-drop{display:flex;flex-direction:column;justify-content:center;align-items:center;box-sizing:border-box;padding:40px;min-height:160px;outline-offset:-10px;background:rgba(255, 255, 255, 0.25);text-align:center;transition:all 0.15s ease 0s;outline:rgba(0, 0, 0, 0.25) dashed 2px}";
 
@@ -3943,6 +3969,7 @@ class FormController {
         this.element.addEventListener("direct-upload:progress", event => this.progress(event));
         this.element.addEventListener("direct-upload:error", event => this.error(event));
         this.element.addEventListener("direct-upload:end", event => this.end(event));
+        this.element.addEventListener("uploaded-file:remove", event => this.removeUploadedFile(event));
     }
     beforeUnload(event) {
         if (this.processing) {
@@ -3968,12 +3995,9 @@ class FormController {
                 if (error) {
                     Array.from(this.element.querySelectorAll("input[type=file]"))
                         .forEach((e) => e.disabled = false);
-                    this.errors = true;
                 }
-                else {
-                    this.processing = false;
-                    this.startNextController();
-                }
+                this.processing = false;
+                this.startNextController();
             });
         }
         else {
@@ -3981,7 +4005,7 @@ class FormController {
         }
     }
     submitForm() {
-        if (this.submitted && !this.errors) {
+        if (this.submitted) {
             Array.from(this.element.querySelectorAll("input[type=file]"))
                 .forEach((e) => e.disabled = true);
             this.element.submit();
@@ -4013,6 +4037,14 @@ class FormController {
     }
     end(event) {
         this.progressTargetMap[event.detail.id].classList.add("direct-upload--complete");
+    }
+    removeUploadedFile(event) {
+        const uploadedFile = event.detail;
+        const id = uploadedFile.controller?.directUpload?.id;
+        if (id) {
+            document.getElementById(`direct-upload-${id}`).remove();
+            delete this.progressTargetMap[id];
+        }
     }
 }
 
@@ -4068,9 +4100,6 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         this.el.removeAttribute("id");
         this.formController = FormController.forForm(this.el.closest("form"));
     }
-    removeUploadedFile(event) {
-        this.removeFile(event.detail);
-    }
     fileTargetChanged(_event) {
         const uploadedFiles = Array.from(this.fileTarget.files).map(file => {
             return UploadedFile$1.fromFile(file, {
@@ -4093,9 +4122,10 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         this.renderFiles();
         this.el.dispatchEvent(new Event("change"));
     }
-    removeFile(file) {
-        const index = this.files.indexOf(file);
-        this.files.splice(index, 1);
+    removeUploadedFile(event) {
+        const index = this.files.findIndex(uf => uf.uid === event.detail.uid);
+        if (index !== -1)
+            this.files.splice(index, 1);
         this.renderFiles();
         this.el.dispatchEvent(new Event("change"));
     }
