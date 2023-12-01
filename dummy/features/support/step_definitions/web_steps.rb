@@ -56,13 +56,15 @@ Then "I should not see a preview" do
 end
 
 Then "I should see an upload progress bar at 100%" do
-  expect(page).to have_css(".direct-upload--complete")
+  expect(page).to have_css("progress-bar[percent='100']")
 end
 
 Then "the {string} bard-file should have a validation error containing {string}" do |field, message|
   field = find_field(field)
   bard_file = field.find(:xpath, "..")
-  actual = bard_file.evaluate_script("this.validationMessage")
+  actual = [bard_file, *bard_file.all("uploaded-file input")].map do |e|
+    e.evaluate_script("this.validationMessage")
+  end
   expect(actual).to include message
 end
 
