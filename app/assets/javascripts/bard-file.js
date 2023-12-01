@@ -2327,7 +2327,7 @@ const flush = () => {
 const nextTick = (cb) => promiseResolve().then(cb);
 const writeTask = /*@__PURE__*/ queueTask(queueDomWrites, true);
 
-const filePreviewCss = ":host{display:block}";
+const filePreviewCss = ":host{display:block}img,video{max-width:100%}";
 
 const FilePreview$1 = /*@__PURE__*/ proxyCustomElement(class FilePreview extends H {
     constructor() {
