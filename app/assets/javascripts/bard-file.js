@@ -3892,18 +3892,14 @@ const FileDrop$1 = /*@__PURE__*/ proxyCustomElement(class FileDrop extends H {
     }
     highlight(event) {
         event.preventDefault();
-        event.stopPropagation();
         this.el.classList.add("-dragover");
     }
-    unhighlight(event) {
-        event.preventDefault();
-        event.stopPropagation();
+    unhighlight(_event) {
         this.el.classList.remove("-dragover");
     }
     drop(event) {
         event.preventDefault();
-        event.stopPropagation();
-        this.unhighlight(event);
+        this.el.classList.remove("-dragover");
         this.fileTarget.files = event.dataTransfer.files;
         this.fileTarget.dispatchEvent(new Event("change"));
     }
