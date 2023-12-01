@@ -3906,7 +3906,7 @@ const FileDrop$1 = /*@__PURE__*/ proxyCustomElement(class FileDrop extends H {
     static get style() { return fileDropCss; }
 }, [0, "file-drop", {
         "for": [1]
-    }, [[0, "click", "openFilePicker"], [1, "dragover", "highlight"], [1, "dragleave", "unhighlight"], [1, "drop", "drop"]]]);
+    }, [[0, "click", "openFilePicker"], [0, "dragover", "highlight"], [0, "dragleave", "unhighlight"], [0, "drop", "drop"]]]);
 
 class FormController {
     static forForm(form) {
