@@ -56,7 +56,9 @@ Then "I should not see a preview" do
 end
 
 Then "I should see an upload progress bar at 100%" do
-  expect(page).to have_css("progress-bar[percent='100']")
+  page.document.synchronize 5, errors: [Capybara::ElementNotFound, Ferrum::JavaScriptError] do
+    expect(page).to have_css("progress-bar[percent='100']")
+  end
 end
 
 Then "the {string} bard-file should have a validation error containing {string}" do |field, message|

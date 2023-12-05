@@ -8,21 +8,14 @@ module WithinHelpers
   def selector_for(locator)
     case locator
 
-    when /the "(.+)" bard-file shadow root/
-      field = find_field($1)
-      bard_file = field.find(:xpath, "..")
-      shadow_root = bard_file.shadow_root
-      page.document.synchronize errors: [Ferrum::JavaScriptError] do
-        shadow_root.has_css?("*")
-      end
-      shadow_root.find(".media-preview")
-
     when /the "(.+)" bard-file/
       field = find_field($1)
       bard_file = field.find(:xpath, "..")
 
     when /the "(.+)" uploaded-file/
-      find("uploaded-file[filename='#{$1}']").shadow_root.find("figure")
+      page.document.synchronize 5, errors: [Capybara::ElementNotFound, Ferrum::JavaScriptError] do
+        find("uploaded-file[filename='#{$1}']").shadow_root.find("figure")
+      end
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
