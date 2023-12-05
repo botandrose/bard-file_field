@@ -8,16 +8,7 @@ module Bard
     class Engine < ::Rails::Engine
       initializer "bard-file_field.assets" do
         if Rails.application.config.respond_to?(:assets)
-          Rails.application.config.assets.precompile += %w[
-            bard-file.js
-            bard-file/css.js
-            bard-file/file.js
-            bard-file/form-controller.js
-            bard-file/direct-upload.js
-            bard-file/drag-and-drop.js
-            bard-file/validations.js
-            bard-file/rendering.js
-          ]
+          Rails.application.config.assets.precompile += ["bard-file.js"]
         end
       end
 
