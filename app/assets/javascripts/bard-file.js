@@ -4617,7 +4617,7 @@ const FileDrop$1 = /*@__PURE__*/ proxyCustomElement(class FileDrop extends H {
     }, [[0, "click", "openFilePicker"], [0, "dragover", "highlight"], [0, "dragleave", "unhighlight"], [0, "drop", "drop"]]]);
 
 class FormController {
-    static forForm(form) {
+    static instance(form) {
         return form.bardFileFormController ||= new FormController(form);
     }
     progressContainerTarget;
@@ -4737,13 +4737,10 @@ const bardFileCss = ":host{display:block;padding:25px;color:var(--bard-file-text
 
 const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
     get el() { return this; }
-    forceUpdate() {
-        this._forceUpdate = !this._forceUpdate;
-    }
-    originalId;
+    forceUpdate() { this._forceUpdate = !this._forceUpdate; }
     fileTarget;
     hiddenTarget;
-    formController;
+    _files;
     constructor() {
         super();
         this.__registerHost();
@@ -4754,90 +4751,64 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         this.required = false;
         this.accepts = undefined;
         this.max = undefined;
-        this.files = undefined;
         this._forceUpdate = false;
-        this.originalId = this.el.id;
-        this.hiddenTarget = document.createElement("input");
-        this.hiddenTarget.id = "hidden-target";
-        this.fileTarget = document.createElement("input");
-        this.fileTarget.id = this.originalId;
-        this.fileTarget.addEventListener("change", event => this.fileTargetChanged(event));
+        this.hiddenTarget = html(`<input id="hidden-target">`);
+        this.fileTarget = html(`<input id="${this.el.id}">`);
         this.files = Array.from(this.el.children).filter(e => e.tagName == "UPLOADED-FILE");
     }
     componentWillLoad() {
         this.el.removeAttribute("id");
         this.el.insertAdjacentElement("afterbegin", this.hiddenTarget);
         this.el.insertAdjacentElement("afterbegin", this.fileTarget);
-        this.formController = FormController.forForm(this.el.closest("form"));
+        FormController.instance(this.el.closest("form"));
     }
     // Methods
+    get files() {
+        return this._files;
+    }
+    set files(val) {
+        this._files = val;
+        if (!this.multiple)
+            this._files = this._files.slice(-1);
+        this.forceUpdate();
+    }
     get value() {
-        return this.files.map(uploadedFile => uploadedFile.value);
+        return this.files.map(e => e.value);
     }
     set value(val) {
-        this.files = [];
-        const signedIds = this._signedIdsFromValue(val);
-        const uploadedFiles = signedIds.map(signedId => {
-            const e = new UploadedFile$1();
-            e.name = this.name;
-            e.signedId = signedId;
-            return e;
-        });
-        this.assignFiles(uploadedFiles);
+        this.files = (val || []).map(signedId => Object.assign(new UploadedFile$1(), {
+            name: this.name,
+            signedId,
+        }));
     }
-    _signedIdsFromValue(value) {
-        let signedIds = [];
-        if (typeof value == "string" && value.length > 0) {
-            signedIds = value.split(",");
-        }
-        if (Array.isArray(value)) {
-            signedIds = value;
-        }
-        return signedIds.filter(signedId => {
-            return signedId.toString().length > 0;
-        });
-    }
-    fileTargetChanged(_event) {
-        const uploadedFiles = Array.from(this.fileTarget.files).map(file => {
-            const e = new UploadedFile$1();
-            e.name = this.name;
-            e.url = this.directupload;
-            if (this.accepts)
-                e.accepts = this.accepts;
-            if (this.max)
-                e.max = this.max;
-            e["file"] = file;
-            return e;
-        });
+    fileTargetChanged(event) {
+        if (event.target !== this.fileTarget)
+            return;
+        this.files.push(...Array.from(this.fileTarget.files).map(file => Object.assign(new UploadedFile$1(), {
+            name: this.name,
+            url: this.directupload,
+            accepts: this.accepts,
+            max: this.max,
+            file,
+        })));
+        this.files = this.files;
         this.fileTarget.value = null;
-        this.assignFiles(uploadedFiles);
-    }
-    assignFiles(uploadedFiles) {
-        if (this.multiple) {
-            this.files.push(...uploadedFiles);
-            this.forceUpdate();
-        }
-        else {
-            this.files = uploadedFiles.slice(-1);
-        }
         this.el.dispatchEvent(new Event("change"));
     }
     removeUploadedFile(event) {
-        const index = this.files.findIndex(uf => uf === event.detail);
-        if (index !== -1)
-            this.files.splice(index, 1);
-        this.forceUpdate();
+        arrayRemove(this.files, event.detail);
+        this.files = this.files;
         this.el.dispatchEvent(new Event("change"));
     }
     // Rendering
     render() {
-        return (h(Host, null, h("file-drop", { for: this.originalId }, h("i", { class: "drag-icon" }), h("p", null, h("strong", null, "Choose ", this.multiple ? "files" : "file", " "), h("span", null, "or drag ", this.multiple ? "them" : "it", " here.")), h("div", { class: `media-preview ${this.multiple ? '-stacked' : ''}` }, h("slot", null)))));
+        return (h(Host, null, h("file-drop", { for: this.fileTarget.id }, h("i", { class: "drag-icon" }), h("p", null, h("strong", null, "Choose ", this.multiple ? "files" : "file", " "), h("span", null, "or drag ", this.multiple ? "them" : "it", " here.")), h("div", { class: `media-preview ${this.multiple ? '-stacked' : ''}` }, h("slot", null)))));
     }
     componentDidRender() {
         morphdom(this.fileTarget, `
       <input
         type="file"
-        id="${this.originalId}"
+        id="${this.fileTarget.id}"
         ${this.multiple ? "multiple" : ""}
         ${this.required && this.files.length === 0 ? "required" : ""}
         style="opacity: 0.01; width: 1px; height: 1px; z-index: -999"
@@ -4881,9 +4852,19 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         "required": [4],
         "accepts": [1],
         "max": [2],
-        "files": [1040],
         "_forceUpdate": [32]
-    }, [[0, "uploaded-file:remove", "removeUploadedFile"]]]);
+    }, [[0, "change", "fileTargetChanged"], [0, "uploaded-file:remove", "removeUploadedFile"]]]);
+function html(html) {
+    const el = document.createElement("div");
+    morphdom(el, `<div>${html}</div>`);
+    return el.children[0];
+}
+function arrayRemove(arr, e) {
+    const index = arr.findIndex(x => x === e);
+    if (index !== -1) {
+        arr.splice(index, 1);
+    }
+}
 
 const BardFile = BardFile$1;
 
