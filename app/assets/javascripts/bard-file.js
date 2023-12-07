@@ -4771,6 +4771,7 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         if (!this.multiple)
             this._files = this._files.slice(-1);
         this.forceUpdate();
+        this.el.dispatchEvent(new Event("change"));
     }
     get value() {
         return this.files.map(e => e.value);
@@ -4793,12 +4794,10 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         })));
         this.files = this.files;
         this.fileTarget.value = null;
-        this.el.dispatchEvent(new Event("change"));
     }
     removeUploadedFile(event) {
         arrayRemove(this.files, event.detail);
         this.files = this.files;
-        this.el.dispatchEvent(new Event("change"));
     }
     // Rendering
     render() {
