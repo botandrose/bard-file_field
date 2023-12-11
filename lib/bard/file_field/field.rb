@@ -13,7 +13,6 @@ module Bard
             content_tag("uploaded-file", nil, {
               src: @template_object.url_for(attachment),
               filename: attachment.filename,
-              mimetype: attachment.content_type,
             })
           end
         end
