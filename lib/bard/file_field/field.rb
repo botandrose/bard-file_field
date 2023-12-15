@@ -7,10 +7,11 @@ module Bard
         add_default_name_and_id(options)
 
         content_tag("bard-file", options) do
-          next block.call if block
+          next block.call(options) if block
           attachment = object.try(@method_name)
           if attachment&.attached?
             content_tag("uploaded-file", nil, {
+              name: options["name"],
               src: @template_object.url_for(attachment),
               filename: attachment.filename,
               value: attachment.signed_id,
