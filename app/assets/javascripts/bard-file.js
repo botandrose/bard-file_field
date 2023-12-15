@@ -3259,12 +3259,9 @@ class DirectUploadController {
             this.complete(error, attributes);
         });
     }
-    complete(error, attributes) {
+    complete(error, _attributes) {
         if (error) {
             this.dispatchError(error);
-        }
-        else {
-            this.uploadedFile.value = attributes.signed_id;
         }
         this.dispatch("end");
         this.callback(error);
@@ -3299,6 +3296,7 @@ class DirectUploadController {
     }
     directUploadWillStoreFileWithXHR(xhr) {
         this.uploadXHR = xhr;
+        this.uploadedFile.value = this.recordXHR.response.signed_id;
         this.dispatch("before-storage-request", {
             xhr: xhr
         });
