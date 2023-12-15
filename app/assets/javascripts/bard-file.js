@@ -4522,14 +4522,16 @@ const UploadedFile$1 = /*@__PURE__*/ proxyCustomElement(class UploadedFile exten
         this._file = file;
     }
     set signedId(val) {
-        get(`/rails/active_storage/blobs/info/${val}`).then(blob => {
-            this.src = `/rails/active_storage/blobs/redirect/${val}/${blob.filename}`;
-            this.filename = blob.filename;
-            this.size = blob.byte_size;
-            this.state = "complete";
-            this.percent = 100;
-            this.value = val;
-        });
+        if (this.value !== val) {
+            get(`/rails/active_storage/blobs/info/${val}`).then(blob => {
+                this.src = `/rails/active_storage/blobs/redirect/${val}/${blob.filename}`;
+                this.filename = blob.filename;
+                this.size = blob.byte_size;
+                this.state = "complete";
+                this.percent = 100;
+                this.value = val;
+            });
+        }
     }
     setMissingFiletype(_value, _previousValue) {
         if (!this.filetype && this.filename) {
@@ -4759,8 +4761,9 @@ const bardFileCss = ":host{display:block;padding:25px;color:var(--bard-file-text
 const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
     get el() { return this; }
     forceUpdate() { this._forceUpdate = !this._forceUpdate; }
-    inputId;
+    fileTargetId;
     fileTarget;
+    hiddenTargetId;
     hiddenTarget;
     _files;
     constructor() {
@@ -4774,9 +4777,10 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         this.accepts = undefined;
         this.max = undefined;
         this._forceUpdate = false;
-        this.inputId = this.el.id;
-        this.hiddenTarget = html(`<input id="hidden-target-${this.name}">`);
-        this.fileTarget = html(`<input id="${this.inputId}">`);
+        this.fileTargetId = this.el.id;
+        this.fileTarget = html(`<input id="${this.fileTargetId}">`);
+        this.hiddenTargetId = `hidden-target-${this.name}`;
+        this.hiddenTarget = html(`<input id="${this.hiddenTargetId}">`);
         this.files = Array.from(this.el.children).filter(e => e.tagName == "UPLOADED-FILE");
     }
     componentWillLoad() {
@@ -4798,10 +4802,13 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         return this.files.map(e => e.value);
     }
     set value(val) {
-        this.files = (val || []).map(signedId => Object.assign(new UploadedFile$1(), {
-            name: this.name,
-            signedId,
-        }));
+        const newValue = val || [];
+        if (JSON.stringify(this.value) !== JSON.stringify(newValue)) { // this is insane. javascript is fucking garbage.
+            this.files = newValue.map(signedId => Object.assign(new UploadedFile$1(), {
+                name: this.name,
+                signedId,
+            }));
+        }
     }
     fileTargetChanged(event) {
         if (event.target !== this.fileTarget)
@@ -4822,21 +4829,19 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
     }
     // Rendering
     render() {
-        return (h(Host, null, h("file-drop", { for: this.inputId }, h("i", { class: "drag-icon" }), h("p", null, h("strong", null, "Choose ", this.multiple ? "files" : "file", " "), h("span", null, "or drag ", this.multiple ? "them" : "it", " here.")), h("div", { class: `media-preview ${this.multiple ? '-stacked' : ''}` }, h("slot", null)))));
+        return (h(Host, null, h("file-drop", { for: this.fileTargetId }, h("i", { class: "drag-icon" }), h("p", null, h("strong", null, "Choose ", this.multiple ? "files" : "file", " "), h("span", null, "or drag ", this.multiple ? "them" : "it", " here.")), h("div", { class: `media-preview ${this.multiple ? '-stacked' : ''}` }, h("slot", null)))));
     }
     componentDidRender() {
         morphdom(this.fileTarget, `
-      <input
+      <input id="${this.fileTargetId}"
         type="file"
-        id="${this.inputId}"
         ${this.multiple ? "multiple" : ""}
         ${this.required && this.files.length === 0 ? "required" : ""}
         style="opacity: 0.01; width: 1px; height: 1px; z-index: -999"
       >`);
         morphdom(this.hiddenTarget, `
-      <input
+      <input id="${this.hiddenTargetId}"
         type="hidden"
-        id="hidden-target-${this.name}"
         name="${this.name}"
         ${this.files.length > 0 ? "disabled" : ""}
       >`);

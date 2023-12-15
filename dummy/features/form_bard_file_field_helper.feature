@@ -24,21 +24,6 @@ Feature: form.bard_file_field is an improved form.file_field input with extra fe
     When I follow "Edit"
     Then I should see a preview of "image.jpg" within the "Image" bard-file
 
-  Scenario: It supports naive serialization and resumption with the form-persistence npm package
-    When I fill in "Name" with "Jerry"
-    And I attach the file "image.jpg" to "Image"
-    Then I should see an upload progress bar at 100% within the "image.jpg" uploaded-file
-
-    Given I am on the homepage
-    Then I should see "Name" filled in with "Jerry"
-    And I should see a preview of "image.jpg" within the "Image" bard-file
-    And I should not see a preview
-
-    When I press "Submit"
-    Then I should see "Post created!"
-    And I should see "image.jpg"
-    And I should see the "image.jpg" image
-
   Scenario: It can remove a not-yet-submitted file
     When I fill in "Name" with "No Image"
     And I attach the file "image.jpg" to "Image"

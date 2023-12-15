@@ -6,6 +6,10 @@ Given "I am on {string}" do |path|
   visit path
 end
 
+When "I reload the page" do
+  visit page.current_path
+end
+
 When "I fill in {string} with {string}" do |field, value|
   fill_in field, with: value
 end
