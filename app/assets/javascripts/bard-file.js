@@ -4777,7 +4777,7 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         this._forceUpdate = false;
         this.fileTargetId = this.el.id;
         this.fileTarget = html(`<input id="${this.fileTargetId}">`);
-        this.hiddenTargetId = `hidden-target-${this.name}`;
+        this.hiddenTargetId = `hidden-target-${this.el.getAttribute("name")}`;
         this.hiddenTarget = html(`<input id="${this.hiddenTargetId}">`);
         this.files = Array.from(this.el.children).filter(e => e.tagName == "UPLOADED-FILE");
     }
