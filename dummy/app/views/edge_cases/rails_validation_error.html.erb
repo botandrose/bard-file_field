@@ -1,0 +1,16 @@
+<h1>Rails validation error</h1>
+<%= form_with model: @post, url: request.fullpath, method: :patch do |form| %>
+  <p>
+    <%= form.label :image %>
+    <%= form.bard_file_field :image, accepts: "image" %>
+  </p>
+
+  <p>
+    <%= form.label :number %>
+    <%= form.text_field :number %>
+  </p>
+
+  <p><%= form.submit "Submit" %></p>
+<% end %>
+
+
