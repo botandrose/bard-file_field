@@ -50,6 +50,7 @@ Feature: form.bard_file_field has validation options
     Examples:
       | extension |
       # Images
+      | JPEG      |
       | jpeg      |
       | jpg       |
       | png       |
@@ -65,5 +66,6 @@ Feature: form.bard_file_field has validation options
       | 3gpp      |
       | webm      |
       | m4v       |
-      | M4V       |
+      | mkv       |
+      | flv       |
 
