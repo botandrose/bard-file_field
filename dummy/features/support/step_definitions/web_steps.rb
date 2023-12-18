@@ -18,6 +18,12 @@ When "I attach the file {string} to {string}" do |path, field|
   attach_file field, Rails.root.join("features/support/fixtures/#{path}")
 end
 
+When "I attach a file of type {string} to {string}" do |extension, field|
+  path = Rails.root.join("features/support/fixtures/empty.#{extension}")
+  FileUtils.touch(path)
+  attach_file field, path
+end
+
 When "I attach the following files to {string}:" do |field, table|
   files = table.raw.map(&:first).map { |path| Rails.root.join("features/support/fixtures/#{path}") }
   attach_file field, files
@@ -66,12 +72,21 @@ Then "I should see an upload progress bar at 100%" do
 end
 
 Then "the {string} bard-file should have a validation error containing {string}" do |field, message|
+  messages = bard_file_validation_messages(field)
+  expect(messages).to include message
+end
+
+Then "the {string} bard-file should have no validation errors" do |field|
+  messages = bard_file_validation_messages(field)
+  expect(messages).to be_empty
+end
+
+def bard_file_validation_messages field
   field = find_field(field)
   bard_file = field.find(:xpath, "..")
-  actual = [bard_file, *bard_file.all("uploaded-file input")].map do |e|
+  [bard_file, *bard_file.all("uploaded-file input")].map do |e|
     e.evaluate_script("this.validationMessage")
-  end
-  expect(actual).to include message
+  end.select(&:present?)
 end
 
 Then "debugger" do

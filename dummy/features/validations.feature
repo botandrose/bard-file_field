@@ -42,3 +42,28 @@ Feature: form.bard_file_field has validation options
     Then I should see "Post created!"
     And I should see a preview of "image.jpg" within the "File" bard-file
 
+  Scenario Outline: It supports many file extensions
+    Given I am on "/validations/required_media"
+    When I attach a file of type "<extension>" to "Required media"
+    Then the "Required media" bard-file should have no validation errors
+
+    Examples:
+      | extension |
+      # Images
+      | jpeg      |
+      | jpg       |
+      | png       |
+      | gif       |
+      | bmp       |
+      | tiff      |
+      | heic      |
+      # Videos
+      | mp4       |
+      | avi       |
+      | mov       |
+      | wmv       |
+      | 3gpp      |
+      | webm      |
+      | m4v       |
+      | M4V       |
+

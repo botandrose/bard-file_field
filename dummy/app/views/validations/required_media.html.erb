@@ -1,0 +1,10 @@
+<h1>Required Media</h1>
+<%= form_with model: @post, url: request.fullpath, method: :patch do |form| %>
+  <p>
+    <%= form.label :media, "Required media" %>
+    <%= form.bard_file_field :media, accepts: "image,video", required: true %>
+  </p>
+
+  <p><%= form.submit "Submit" %></p>
+<% end %>
+
