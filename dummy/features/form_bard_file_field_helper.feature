@@ -24,6 +24,18 @@ Feature: form.bard_file_field is an improved form.file_field input with extra fe
     When I follow "Edit"
     Then I should see a preview of "image.jpg" within the "Image" bard-file
 
+  Scenario: Filename is a download link to the file when the file already exists
+    When I fill in "Name" with "Image"
+    And I attach the file "image.jpg" to "Image"
+    And I press "Submit"
+    Then I should see "Post created!"
+    And I should see "image.jpg"
+    And I should see the "image.jpg" image
+
+    When I follow "Edit"
+    And I follow "image.jpg" within the "image.jpg" uploaded-file
+    Then I should download a file named "image.jpg"
+
   Scenario: It can remove a not-yet-submitted file
     When I fill in "Name" with "No Image"
     And I attach the file "image.jpg" to "Image"

@@ -2363,7 +2363,7 @@ const FilePreview$1 = /*@__PURE__*/ proxyCustomElement(class FilePreview extends
     }]);
 const toggle = function () { this.paused ? this.play() : this.pause(); return false; };
 
-const progressBarCss = ":host{display:block;position:relative;padding:0 20px;margin:0 0px 10px 0;border:1px solid rgba(0, 0, 0, 0.3);border-radius:3px;line-height:2;flex:1 0;box-sizing:border-box;text-align:left;font-size:0.7rem}.bar{position:absolute;top:0;left:0;bottom:0;opacity:0.2;background:#398927;transition:width 120ms ease-out, opacity 60ms 60ms ease-in;transform:translate3d(0, 0, 0)}";
+const progressBarCss = ":host{display:block;position:relative;padding:0 20px;margin:0 0px 10px 0;border:1px solid rgba(0, 0, 0, 0.3);border-radius:3px;line-height:2;flex:1 0;box-sizing:border-box;text-align:left;font-size:0.7rem}.bar{position:absolute;top:0;left:0;bottom:0;opacity:0.2;background:#398927;transition:width 120ms ease-out, opacity 60ms 60ms ease-in;transform:translate3d(0, 0, 0)}.content{position:relative}";
 
 const ProgressBar$1 = /*@__PURE__*/ proxyCustomElement(class ProgressBar extends H {
     constructor() {
@@ -2373,7 +2373,7 @@ const ProgressBar$1 = /*@__PURE__*/ proxyCustomElement(class ProgressBar extends
         this.percent = 0;
     }
     render() {
-        return (h(Host, null, h("div", { class: "bar", style: { width: `${this.percent}%` } }), h("slot", null)));
+        return (h(Host, null, h("div", { class: "bar", style: { width: `${this.percent}%` } }), h("span", { class: "content" }, h("slot", null))));
     }
     static get style() { return progressBarCss; }
 }, [1, "progress-bar", {
@@ -4559,7 +4559,7 @@ const UploadedFile$1 = /*@__PURE__*/ proxyCustomElement(class UploadedFile exten
         }
     }
     render() {
-        return (h(Host, null, h("slot", null), h("figure", null, h("div", { class: "progress-details" }, h("progress-bar", { percent: this.percent, class: this.state }, this.filename), h("a", { class: "remove-media", onClick: this.removeClicked, href: "#" }, h("span", null, "Remove media"))), h("file-preview", { src: this.src, filetype: this.filetype }))));
+        return (h(Host, null, h("slot", null), h("figure", null, h("div", { class: "progress-details" }, h("progress-bar", { percent: this.percent, class: this.state }, h("a", { href: this.src, download: this.filename, onClick: e => e.stopPropagation() }, this.filename)), h("a", { class: "remove-media", onClick: this.removeClicked, href: "#" }, h("span", null, "Remove media"))), h("file-preview", { src: this.src, filetype: this.filetype }))));
     }
     componentDidRender() {
         morphdom(this.inputTarget, `
