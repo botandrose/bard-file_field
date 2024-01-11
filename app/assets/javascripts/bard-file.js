@@ -4670,7 +4670,9 @@ class FormController {
       </dialog>`);
         this.dialog = this.element.querySelector("#form-controller-dialog");
         this.progressContainerTarget = this.dialog.querySelector("#progress-container");
-        this.element.addEventListener("submit", event => this.submit(event));
+        if (!this.element.dataset.remote) {
+            this.element.addEventListener("submit", event => this.submit(event));
+        }
         window.addEventListener("beforeunload", event => this.beforeUnload(event));
         this.element.addEventListener("direct-upload:initialize", event => this.init(event));
         this.element.addEventListener("direct-upload:start", event => this.start(event));
@@ -4799,8 +4801,7 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         if (!this.multiple)
             this._files = this._files.slice(-1);
         this.forceUpdate();
-        this.el.dispatchEvent(new Event("input"));
-        this.el.dispatchEvent(new Event("change"));
+        this.fireChangeEvent();
     }
     get value() {
         return this.files.map(e => e.value);
@@ -4832,6 +4833,9 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
     removeUploadedFile(event) {
         arrayRemove(this.files, event.detail);
         this.files = this.files;
+    }
+    fireChangeEvent() {
+        requestAnimationFrame(() => this.el.dispatchEvent(new Event("change", { bubbles: true })));
     }
     // Rendering
     render() {
@@ -4878,7 +4882,7 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
         "max": [2],
         "preview": [4],
         "_forceUpdate": [32]
-    }, [[0, "change", "fileTargetChanged"], [0, "uploaded-file:remove", "removeUploadedFile"]]]);
+    }, [[0, "change", "fileTargetChanged"], [0, "uploaded-file:remove", "removeUploadedFile"], [0, "direct-upload:end", "fireChangeEvent"]]]);
 
 const BardFile = BardFile$1;
 
