@@ -4719,7 +4719,7 @@ class FormController {
             Array.from(this.element.querySelectorAll("input[type=file]"))
                 .forEach((e) => e.disabled = true);
             window.setTimeout(() => {
-                this.element.requestSubmit();
+                this.element.submit();
             }, 10);
         }
     }
