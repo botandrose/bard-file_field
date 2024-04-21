@@ -1,24 +1,13 @@
-## editors
-/.idea
-/.vscode
-
-## system files
-.DS_Store
-
-## npm
-/node_modules/
-/npm-debug.log
-
-## testing
+/.bundle/
+/.yardoc
+/Gemfile.lock
+/gemfiles/*.lock
+/_yardoc/
 /coverage/
-
-## temp folders
-/.tmp/
-
-# build
-/_site/
-/dist/
-/out-tsc/
-
-storybook-static
-custom-elements.json
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+.ruby-version
+.ruby-gemset
+.byebug_history
