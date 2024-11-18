@@ -4790,7 +4790,9 @@ const BardFile$1 = /*@__PURE__*/ proxyCustomElement(class BardFile extends H {
     componentWillLoad() {
         this.el.removeAttribute("id");
         FormController.instance(this.el.closest("form"));
-        this.files = Array.from(this.el.children).filter(e => e.tagName == "UPLOADED-FILE");
+        const existingFiles = Array.from(this.el.children).filter(e => e.tagName == "UPLOADED-FILE");
+        if (existingFiles.length > 0)
+            this.files = existingFiles;
     }
     // Methods
     get files() {
